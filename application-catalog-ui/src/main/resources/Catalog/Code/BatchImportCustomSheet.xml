@@ -1,0 +1,252 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Catalog.Code.BatchImportCustomSheet" locale="">
+  <web>Catalog.Code</web>
+  <name>BatchImportCustomSheet</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{include reference="BatchImport.BatchImportMacros" /}}
+
+{{velocity}}
+#macro(doCustomImport)
+  == $services.localization.render('batchimport.import.import.title') ==
+
+  $services.localization.render('batchimport.import.import.description')
+
+  #set($result = $services.batchimport.doImport($importconfig, true, false, false, "i18n"))
+  #if($result)
+    #if ($result.errorLog.length() &gt; 0)
+      === $services.localization.render('batchimport.import.import.errorlog') ===
+      (%class="importlogbox"%)((({{warning}}$result.errorLog{{/warning}})))
+      === $services.localization.render('batchimport.import.import.fulllog') ===
+    #end
+    (%class="importlogbox importfulllogbox"%)((({{info}}$result.fullLog{{/info}})))
+  #else
+    #displayLastException('import')
+  #end
+  #set($welcomePage = $xwiki.getDocument('Catalog.WebHome'))
+  [[$services.localization.render('batchimport.import.import.backtowebhome', [$welcomePage.space])&gt;&gt;${welcomePage}]]
+#end
+
+## include the css from this page
+#set($discard = $xwiki.ssx.use("BatchImport.BatchImportSheet"))
+## all the possible filds to map
+#set($fieldsToMap = ['doc.name', 'doc.title', 'doc.space', 'doc.parent', 'doc.content', 'doc.file', 'doc.tags'])
+## read the import config, the import steps will need it
+## first from the stored class for preserving settings, then overwrite from the request
+#set($importconfig = $services.batchimport.readConfigurationFromObject($doc, "BatchImport.BatchImportClass"))
+## here, for all steps besides the mapping step, overwrite the mapping list completely with the list from the request, 
+## so that there are no "hidden" mappings used for the import, since the class has only " fill in presets" role, 
+## the configuration itself to be used will still be passed in params  -&gt; this is to prevent validating a set of 
+## steps and executing a different import because somebody else changed the stored configuration in the mean time.
+#if("$!request.step_mapping" == "")
+  #set($discard = $importconfig.clearFieldsMapping())
+#end
+#set($importconfig = $services.batchimport.readConfigurationFromRequest($importconfig))
+## and put the default settings
+#set($discard = $importconfig.setHeaderRow(true))
+#set($spaceHome = $doc)
+#set($livetableObjInWebHome = $spaceHome.getObject('Catalog.Code.ImportCfgClass'))
+#if ($livetableObjInWebHome != $NULL)
+  #set($defaultSpace = "$!{livetableObjInWebHome.getProperty('dataSpace').value}")
+  #set($discard = $importconfig.setDefaultSpace($defaultSpace))
+  #set($classDocument = $livetableObjInWebHome.getProperty('class').value)
+  #set($discard = $importconfig.setMappingClassName($classDocument))
+#end
+## try to guess the type of import by the name of the attachment
+#if($services.model.serialize($importconfig.attachmentReference).endsWith(".xls"))
+  #set($discard = $importconfig.setType('xls'))
+#else
+  #set($discard = $importconfig.setType('csv'))
+#end
+
+## before displaying the current step, save the data coming from previous step to the presets object in this document, as it is written in the read config
+#saveDataToPresetsObject()
+
+#if("$!request.step_mapping" != "")
+  #displayColumnMapping()
+#elseif("$!request.step_preview" != "")
+  #displayMappingPreview()
+#elseif("$!request.step_overwrite" != "")
+  #displayOverwriteChoices()
+#elseif("$!request.step_importsimulation" != "")
+  #doImportSimulation()
+#elseif("$!request.step_import" != "")
+  #doCustomImport()
+  #set($studentsWHDoc = $xwiki.getDocument("$!{defaultSpace}.WebHome"))
+  #set($discard = $studentsWHDoc.setContent('{{children /}}'))
+  #set($discard = $studentsWHDoc.save())
+#else
+  #displayUploadFile()
+#end
+{{/velocity}}
+</content>
+  <object>
+    <name>Catalog.Code.BatchImportCustomSheet</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>6bd6a394-ec0e-4c68-ac9a-0f7fc9bbff53</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>#template('colorThemeInit.vm')
+
+.chooseattachment {
+  margin-top: 20px;
+}
+
+.attachmentlist {
+  list-style-type: none;
+}
+
+.attachmentlist .meta {
+  color: $theme.textPrimaryColor;
+  margin-left: 20px;
+}
+
+.importlogbox {
+  margin-bottom: 20px;
+}
+
+.importlogbox .box {
+  background-color: transparent;
+  box-shadow: none;
+}
+</code>
+    </property>
+    <property>
+      <contentType/>
+    </property>
+    <property>
+      <name>Style for the import wizard</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+</xwikidoc>

@@ -1,0 +1,183 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Catalog.Code.CatalogTemplate" locale="">
+  <web>Catalog.Code</web>
+  <name>CatalogTemplate</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Catalog.Code.CatalogClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Catalog Template</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content/>
+  <object>
+    <name>Catalog.Code.CatalogTemplate</name>
+    <number>0</number>
+    <className>Catalog.Code.CatalogClass</className>
+    <guid>44e92505-ac21-4012-a68f-10fff13ddaa4</guid>
+    <class>
+      <name>Catalog.Code.CatalogClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content1>
+        <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
+        <disabled>0</disabled>
+        <hint>Mesaj</hint>
+        <name>content1</name>
+        <number>3</number>
+        <prettyName>Message</prettyName>
+        <script/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
+      </content1>
+      <course>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint>Materie</hint>
+        <name>course</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>Course</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </course>
+      <finalStateFormula>
+        <contenttype/>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <hint>Formula situatie finala</hint>
+        <name>finalStateFormula</name>
+        <number>6</number>
+        <picker>0</picker>
+        <prettyName>Final state formula</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </finalStateFormula>
+      <labFormula>
+        <contenttype/>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <hint>Formula nota fina laborator</hint>
+        <name>labFormula</name>
+        <number>4</number>
+        <picker>0</picker>
+        <prettyName>Laboratory grade formula</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </labFormula>
+      <studentGroups>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint>Grupe</hint>
+        <name>studentGroups</name>
+        <number>7</number>
+        <picker>0</picker>
+        <prettyName>Student Groups</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </studentGroups>
+      <totalFormula>
+        <contenttype/>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <hint>Formula punctaj total</hint>
+        <name>totalFormula</name>
+        <number>5</number>
+        <picker>0</picker>
+        <prettyName>Total grade formula</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </totalFormula>
+      <year>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint>An</hint>
+        <name>year</name>
+        <number>2</number>
+        <picker>0</picker>
+        <prettyName>Year</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </year>
+    </class>
+    <property>
+      <content1/>
+    </property>
+    <property>
+      <course/>
+    </property>
+    <property>
+      <finalStateFormula/>
+    </property>
+    <property>
+      <labFormula/>
+    </property>
+    <property>
+      <studentGroups/>
+    </property>
+    <property>
+      <totalFormula/>
+    </property>
+    <property>
+      <year/>
+    </property>
+  </object>
+</xwikidoc>
