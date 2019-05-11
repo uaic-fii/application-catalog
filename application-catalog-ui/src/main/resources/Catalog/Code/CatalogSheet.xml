@@ -45,22 +45,23 @@
 
 #set ($columnsProperties = {
   'doc.title': {"link":"view"},
+  'courseName': {"type": "hidden"},
   'doc.location': {"html":true},
   'doc.date': {},
   'doc.author': {"link":"author"},
   '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
 })
 #set ($options = {
-  'className': 'Catalog.Code.Grupa_Class',
+  'className': 'Catalog.Code.Course_Class',
   'translationPrefix': 'catalog.livetable.',
-  'extraParams' : "&amp;location=${doc.space}",
+  'extraParams' : "&amp;courseName=${doc.title}",
   'tagCloud': true,
   'rowCount': 15,
   'maxPages': 10,
   'selectedColumn': 'doc.title',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+#set ($columns = ['doc.title', 'courseName', 'doc.location', 'doc.date', 'doc.author', '_actions'])
 #livetable('catalog' $columns $columnsProperties $options)
 {{/velocity}}</content>
 </xwikidoc>

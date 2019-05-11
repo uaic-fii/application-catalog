@@ -44,6 +44,8 @@
   #displayGenerateCourses()
   #displayImportStudents()
   #generateDocuments_Materii($request.an, ["Catalog", "Courses", "$request.an"], 'Bachelor')
+  #displayInitializeStudents()
+  #initializeStudents()
   #foreach($ref in $referenceList_Materii)
     [[$ref]]
   #end

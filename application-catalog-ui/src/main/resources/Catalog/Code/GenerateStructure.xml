@@ -37,6 +37,13 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
+#macro(editFormByPass)
+  {{html clean=false}}
+    &lt;form action="#"&gt;
+      &lt;input type="hidden" name="action" value="value" /&gt;
+    &lt;/form&gt;
+  {{/html}}
+#end
 ####
 ##Displays a field to select the year and a generat button
 ##
@@ -54,18 +61,21 @@
 #macro(displayImportStudents)
   #set($location = ${xwiki.getDocument('Catalog.Code.CatalogActions').getURL()})
   {{html clean=false}}
-    Importati studenții din fisier csv:
     &lt;form action="$location"&gt;
+      Importati studenții din fisier csv:
       &lt;input type="hidden" name="action" value="importStudents" /&gt;
       &lt;input type="submit" value="Importă" /&gt;
     &lt;/form&gt;
   {{/html}}
 #end
 
-#macro(editFormByPass)
+#macro(displayInitializeStudents)
   {{html clean=false}}
-    &lt;form action="#"&gt;
-      &lt;input type="hidden" name="action" value="value" /&gt;
+    &lt;form action="$!{doc.getURL('edit')}"&gt;
+      #set($nextYear = $!{datetool.year} + 1)
+      Atribuiti materii documentelor de tip student:
+      &lt;input type="hidden" id="initializeStudents" name="initialize" value="students"&gt;
+      &lt;input type="submit" value="Inițializează"&gt;
     &lt;/form&gt;
   {{/html}}
 #end
@@ -74,6 +84,11 @@
 ##
 #macro(generateDocuments_Materii $an $space $typeOfDegree $delete)
   #if("$request.generate" == 'curricula')
+    #set($webHomeDocument = $xwiki.getDocument('Catalog.Courses.WebHome'))
+    #if($webHomeDocument.isNew())
+      #set($discard = $webHomeDocument.setContent('{{children /}}'))
+      #set($discard = $webHomeDocument.save())
+    #end
     #set($query = "where doc.object(Structure.Code.CourseClass).TypeofDegree = :degreeType")
     #set($results = $services.query.xwql($query).bindValue('degreeType', $typeOfDegree).execute())
     #set($docList = [])
@@ -87,11 +102,13 @@
         #if($delete == true)
           #set($discard = $newDoc.delete())
         #else
-          #set($obj = $newDoc.newObject("Catalog.Code.CatalogClass"))
-          #set($discard = $newDoc.setTitle($!{stringtool.substringBefore("$document.name", 'Description')}))
-          #set($discard = $obj.set('course', $!{document.getObject('Structure.Code.CourseClass').getProperty('CourseName').value}))
-          #set($discard = $obj.set('year', $an))
-          #set($discard = $newDoc.save())
+          #if(!$newDoc.getObject("Catalog.Code.CatalogClass"))
+            #set($obj = $newDoc.newObject("Catalog.Code.CatalogClass"))
+            #set($discard = $newDoc.setTitle($!{stringtool.substringBefore("$document.name", 'Description')}))
+            #set($discard = $obj.set('course', $!{document.getObject('Structure.Code.CourseClass').getProperty('CourseName').value}))
+            #set($discard = $obj.set('year', $an))
+            #set($discard = $newDoc.save())
+          #end
         #end
       #end
     #end
@@ -119,8 +136,40 @@
   #end
 #end
 
+#macro(addCourseObjects $coursesList $documentToAlter)
+  #set($discard = $coursesList.remove('Catalog.Code.CatalogTemplate'))
+  #if(!$documentToAlter.getObject('Catalog.Code.Course_Class'))
+    #foreach($course in $coursesList)
+      #set($courseDoc = $xwiki.getDocument($course))
+      #if(!$courseDoc.isNew())
+        #set($courseObj = $documentToAlter.newObject('Catalog.Code.Course_Class'))
+        #if($courseObj.courseName != $courseDoc.title)
+          #set($discard = $courseObj.set('courseName', $courseDoc.title))
+        #end
+      #end
+    #end
+    #set($discard = $documentToAlter.save())
+  #end
+  [[$documentToAlter]]
+#end
+
 ####
-##Create course object for student documents
+##Create cours objects for student documents
 ##
+#macro(initializeStudents)
+  #if("$request.initialize" == 'students')
+    Initilized documents:
+    #set($query = "from doc.object(Catalog.Code.Student_Class) as student")
+    #set($students = $services.query.xwql($query).execute())
+    #set($query = "from doc.object(Catalog.Code.CatalogClass) as course")
+    #set($courses = $services.query.xwql($query).execute())
+    #foreach($student in $students)
+      #set($studentDocument = $xwiki.getDocument($student))
+      #if(!$studentDocument.isNew())
+        #addCourseObjects($courses, $studentDocument)
+      #end
+    #end
+  #end
+#end
 {{/velocity}}</content>
 </xwikidoc>

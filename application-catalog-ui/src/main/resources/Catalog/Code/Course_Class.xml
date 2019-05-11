@@ -80,7 +80,7 @@
       <hint/>
       <name>courseName</name>
       <number>1</number>
-      <picker>1</picker>
+      <picker>0</picker>
       <prettyName>Course Name</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
@@ -108,7 +108,7 @@
       <hint/>
       <name>labGrades</name>
       <number>3</number>
-      <picker>1</picker>
+      <picker>0</picker>
       <prettyName>Laboratorygrades</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
