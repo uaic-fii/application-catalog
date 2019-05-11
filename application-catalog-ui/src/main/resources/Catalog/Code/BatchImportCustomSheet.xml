@@ -39,6 +39,26 @@
   <content>{{include reference="BatchImport.BatchImportMacros" /}}
 
 {{velocity}}
+#macro(doCustomImport)
+  == $services.localization.render('batchimport.import.import.title') ==
+
+  $services.localization.render('batchimport.import.import.description')
+
+  #set($result = $services.batchimport.doImport($importconfig, true, false, false, "i18n"))
+  #if($result)
+    #if ($result.errorLog.length() &gt; 0)
+      === $services.localization.render('batchimport.import.import.errorlog') ===
+      (%class="importlogbox"%)((({{warning}}$result.errorLog{{/warning}})))
+      === $services.localization.render('batchimport.import.import.fulllog') ===
+    #end
+    (%class="importlogbox importfulllogbox"%)((({{info}}$result.fullLog{{/info}})))
+  #else
+    #displayLastException('import')
+  #end
+  #set($welcomePage = $xwiki.getDocument('Catalog.WebHome'))
+  [[$services.localization.render('batchimport.import.import.backtowebhome', [$welcomePage.space])&gt;&gt;${welcomePage}]]
+#end
+
 ## include the css from this page
 #set($discard = $xwiki.ssx.use("BatchImport.BatchImportSheet"))
 ## all the possible filds to map
@@ -56,10 +76,10 @@
 #set($importconfig = $services.batchimport.readConfigurationFromRequest($importconfig))
 ## and put the default settings
 #set($discard = $importconfig.setHeaderRow(true))
-#set($spaceHome = $xwiki.getDocument($doc.space, 'WebHome'))
+#set($spaceHome = $doc)
 #set($livetableObjInWebHome = $spaceHome.getObject('Catalog.Code.ImportCfgClass'))
 #if ($livetableObjInWebHome != $NULL)
-  #set($defaultSpace = "$doc.space$!{livetableObjInWebHome.getProperty('dataSpace').value}")
+  #set($defaultSpace = "$!{livetableObjInWebHome.getProperty('dataSpace').value}")
   #set($discard = $importconfig.setDefaultSpace($defaultSpace))
   #set($classDocument = $livetableObjInWebHome.getProperty('class').value)
   #set($discard = $importconfig.setMappingClassName($classDocument))
@@ -83,7 +103,10 @@
 #elseif("$!request.step_importsimulation" != "")
   #doImportSimulation()
 #elseif("$!request.step_import" != "")
-  #doImport()
+  #doCustomImport()
+  #set($studentsWHDoc = $xwiki.getDocument("$!{defaultSpace}.WebHome"))
+  #set($discard = $studentsWHDoc.setContent('{{children /}}'))
+  #set($discard = $studentsWHDoc.save())
 #else
   #displayUploadFile()
 #end
