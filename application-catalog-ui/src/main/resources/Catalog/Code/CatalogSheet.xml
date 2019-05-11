@@ -37,33 +37,11 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-{{html wiki="true"}}
-#set ($discard = $doc.use('Catalog.Code.CatalogClass'))
-(% class="xform" %)
-(((
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_course"#end&gt;$escapetool.xml($doc.displayPrettyName('course', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Course')
-  : $doc.display('course')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_year"#end&gt;$escapetool.xml($doc.displayPrettyName('year', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Year')
-  : $doc.display('year')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_content1"#end&gt;$escapetool.xml($doc.displayPrettyName('content1', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Mesaj')
-  : $doc.display('content1')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_labFormula"#end&gt;$escapetool.xml($doc.displayPrettyName('labFormula', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Formula nota fina laborator')
-  : $doc.display('labFormula')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_totalFormula"#end&gt;$escapetool.xml($doc.displayPrettyName('totalFormula', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Formula punctaj total')
-  : $doc.display('totalFormula')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_finalStateFormula"#end&gt;$escapetool.xml($doc.displayPrettyName('finalStateFormula', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Formula situatie finala')
-  : $doc.display('finalStateFormula')
-  ; &lt;label#if ($xcontext.action == 'edit') for="Catalog.Code.CatalogClass_0_studentGroups"#end&gt;$escapetool.xml($doc.displayPrettyName('studentGroups', false, false))&lt;/label&gt;##
-    (% class="xHint" %)$services.localization.render('Student Groups')
-  : $doc.display('studentGroups')
-)))
-{{/html}}
+#set($class = $doc.getObject('Catalog.Code.CatalogClass').xWikiClass)
+#foreach($prop in $class.properties)
+  ; $doc.displayPrettyName($prop.name)
+  : $doc.display($prop.name)
+#end
 
 #set ($columnsProperties = {
   'doc.title': {"link":"view"},

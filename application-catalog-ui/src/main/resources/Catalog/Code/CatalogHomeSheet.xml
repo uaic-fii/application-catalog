@@ -1,53 +1,71 @@
-<?xml version='1.1' encoding='UTF-8'?>
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
 <xwikidoc version="1.3" reference="Catalog.Code.CatalogHomeSheet" locale="">
   <web>Catalog.Code</web>
   <name>CatalogHomeSheet</name>
   <language/>
-  <defaultLanguage>en</defaultLanguage>
+  <defaultLanguage/>
   <translation>0</translation>
-  <creator>XWiki.Admin</creator>
-  <creationDate>1555853567000</creationDate>
+  <creator>xwiki:XWiki.Admin</creator>
   <parent>WebHome</parent>
-  <author>XWiki.Admin</author>
-  <contentAuthor>XWiki.Admin</contentAuthor>
-  <date>1557573160000</date>
-  <contentUpdateDate>1557573160000</contentUpdateDate>
-  <version>1.7</version>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
   <title/>
   <comment/>
-  <minorEdit>true</minorEdit>
+  <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>false</hidden>
-  <content>{{include reference='Catalog.Code.GenerateStructure' /}}&#xd;
-&#xd;
-{{velocity}}&#xd;
-#if($xcontext.action == 'edit')&#xd;
-  #editFormByPass()&#xd;
-  #displayGenerateCourses()&#xd;
-  #displayImportStudents()&#xd;
-  #generateDocuments_Materii($request.an, ["Catalog", "Courses", "$request.an"], 'Bachelor')&#xd;
-  #foreach($ref in $referenceList_Materii)&#xd;
-    [[$ref]]&#xd;
-  #end&#xd;
-#else&#xd;
-  #set ($columnsProperties = {&#xd;
-    'doc.title': {"link":"view"},&#xd;
-    'doc.location': {"html":true},&#xd;
-    'doc.date': {},&#xd;
-    'doc.author': {"link":"author"},&#xd;
-    '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}&#xd;
-  })&#xd;
-  #set ($options = {&#xd;
-    'className': 'Catalog.Code.CatalogClass',&#xd;
-    'translationPrefix': 'catalog.livetable.',&#xd;
-    'tagCloud': true,&#xd;
-    'rowCount': 15,&#xd;
-    'maxPages': 10,&#xd;
-    'selectedColumn': 'doc.title',&#xd;
-    'defaultOrder': 'asc'&#xd;
-  })&#xd;
-  #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])&#xd;
-  #livetable('catalog' $columns $columnsProperties $options)&#xd;
-#end&#xd;
+  <content>{{include reference='Catalog.Code.GenerateStructure' /}}
+
+{{velocity}}
+#if($xcontext.action == 'edit')
+  #editFormByPass()
+  #displayGenerateCourses()
+  #displayImportStudents()
+  #generateDocuments_Materii($request.an, ["Catalog", "Courses", "$request.an"], 'Bachelor')
+  #foreach($ref in $referenceList_Materii)
+    [[$ref]]
+  #end
+#else
+  #set ($columnsProperties = {
+    'doc.title': {"link":"view"},
+    'doc.location': {"html":true},
+    'doc.date': {},
+    'doc.author': {"link":"author"},
+    '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+  })
+  #set ($options = {
+    'className': 'Catalog.Code.CatalogClass',
+    'translationPrefix': 'catalog.livetable.',
+    'tagCloud': true,
+    'rowCount': 15,
+    'maxPages': 10,
+    'selectedColumn': 'doc.title',
+    'defaultOrder': 'asc'
+  })
+  #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+  #livetable('catalog' $columns $columnsProperties $options)
+#end
 {{/velocity}}</content>
 </xwikidoc>
