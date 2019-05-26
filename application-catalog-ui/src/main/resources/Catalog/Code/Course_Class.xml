@@ -46,20 +46,202 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <attenndances>
+    <L1>
       <customDisplay/>
       <disabled>0</disabled>
       <hint/>
-      <name>attenndances</name>
-      <number>2</number>
+      <name>L1</name>
+      <number>8</number>
       <numberType>long</numberType>
-      <prettyName>Attenndances</prettyName>
+      <prettyName>L1</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
-    </attenndances>
+    </L1>
+    <L10>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L10</name>
+      <number>17</number>
+      <numberType>long</numberType>
+      <prettyName>L10</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L10>
+    <L11>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L11</name>
+      <number>18</number>
+      <numberType>long</numberType>
+      <prettyName>L11</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L11>
+    <L12>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L12</name>
+      <number>19</number>
+      <numberType>long</numberType>
+      <prettyName>L12</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L12>
+    <L13>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L13</name>
+      <number>20</number>
+      <numberType>long</numberType>
+      <prettyName>L13</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L13>
+    <L2>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L2</name>
+      <number>9</number>
+      <numberType>long</numberType>
+      <prettyName>L2</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L2>
+    <L3>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L3</name>
+      <number>10</number>
+      <numberType>long</numberType>
+      <prettyName>L3</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L3>
+    <L4>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L4</name>
+      <number>11</number>
+      <numberType>long</numberType>
+      <prettyName>L4</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L4>
+    <L5>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L5</name>
+      <number>12</number>
+      <numberType>long</numberType>
+      <prettyName>L5</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L5>
+    <L6>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L6</name>
+      <number>13</number>
+      <numberType>long</numberType>
+      <prettyName>L6</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L6>
+    <L7>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L7</name>
+      <number>14</number>
+      <numberType>long</numberType>
+      <prettyName>L7</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L7>
+    <L8>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L8</name>
+      <number>15</number>
+      <numberType>long</numberType>
+      <prettyName>L8</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L8>
+    <L9>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>L9</name>
+      <number>16</number>
+      <numberType>long</numberType>
+      <prettyName>L9</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </L9>
+    <attendances>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>attendances</name>
+      <number>2</number>
+      <numberType>long</numberType>
+      <prettyName>Attendances</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </attendances>
     <bonus>
       <customDisplay/>
       <disabled>0</disabled>
@@ -102,20 +284,6 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
     </exam>
-    <labGrades>
-      <customDisplay/>
-      <disabled>0</disabled>
-      <hint/>
-      <name>labGrades</name>
-      <number>3</number>
-      <picker>0</picker>
-      <prettyName>Laboratorygrades</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </labGrades>
     <premiere>
       <customDisplay/>
       <disabled>0</disabled>

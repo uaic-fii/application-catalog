@@ -1,0 +1,329 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Catalog.Code.CustomLiveTablePropertyEditor" locale="">
+  <web>Catalog.Code</web>
+  <name>CustomLiveTablePropertyEditor</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Custom LiveTable Property Editor</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+#if($request.value)
+#set($itemdoc = $xwiki.getDocument($request.page))
+#set($obj = $itemdoc.getObject("$request.classname",'courseName', $request.crtDoc))
+#set($ok = $itemdoc.use($request.classname))
+#set($ok = $itemdoc.set($request.fieldname, $request.value, $obj))
+#set($ok = $itemdoc.save("Field ${request.fieldname} updated"))
+#if($ok)
+SAVED
+#set($obj = $itemdoc.getObject("$request.classname",'courseName', $request.crtDoc))
+$itemdoc.display($request.fieldname, "view", $obj)
+#else
+FAILED
+#end
+#elseif($request.fieldname)
+You can modify the field and save:
+
+{{html clean="false" wiki="true"}}
+&lt;form id="propeditorform" method="get"&gt;
+#set($itemdoc = $xwiki.getDocument($request.page))
+#set($ok = $itemdoc.use($request.classname))
+#set($obj = $itemdoc.getObject("$request.classname",'courseName', $request.crtDoc))
+$itemdoc.display($request.fieldname, "edit", $obj)
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;div style="float: right; margin-right: 20px;"&gt;
+&lt;input type="button" id="propeditorcancel" class="button" value="Cancel" /&gt;
+&lt;input type="button" id="propeditorsave" class="button" value="Save" /&gt;
+&lt;br /&gt;&lt;br /&gt;
+&lt;/div&gt;
+&lt;/form&gt;
+{{/html}}
+#elseif($columns)
+{{html clean=false}}
+&lt;div id="propeditor" style="display: none; width: 300px; height: auto; background-color: white; border: 1px solid black; padding: 10px;"&gt;&lt;/div&gt;
+&lt;script type="text/javascript"&gt;
+var Dialog = {};
+
+Dialog.Box = Class.create();
+Object.extend(Dialog.Box.prototype, {
+initialize: function(id,mode) {
+
+switch(mode){
+case 'remote':
+
+if(!id){
+this.dialog_box = document.createElement('div');
+this.dialog_box.setAttribute('id','__remote_dialog__');
+document.body.appendChild(this.dialog_box);
+}else{
+this.dialog_box = $(id);
+}
+
+var anchors = document.getElementsByTagName('a');
+for(anchor in anchors){
+anchor = anchors[anchor];
+
+
+if(typeof(anchor) != 'object') continue;
+if(!anchor.hasAttribute('rel')) continue;
+if(anchor.getAttribute('rel').indexOf('dialog') &lt; 0) continue;
+
+anchor.onclick = function(dialog,e){
+new Ajax.Request(this.href,{
+onComplete : function(o){
+this.dialog_box.innerHTML = o.responseText;
+var anchors = this.dialog_box.getElementsByTagName('a'); //Find a closing anchor
+for(anchor in anchors){
+anchor = anchors[anchor];
+if(typeof(anchor) != 'object') continue;
+if(!anchor.hasAttribute('rel')) continue;
+if(anchor.getAttribute('rel').indexOf('dialog-close') &lt; 0) continue;
+anchor.onclick = function(dialog,e){
+dialog.hide();
+return false;
+}.bind(anchor,this.dialog_box);
+}
+this.dialog_box.show();
+}.bind(dialog)
+});
+
+return false;
+}.bind(anchor,this);
+}
+break;
+default:
+this.dialog_box = $(id);
+break;
+}
+
+this.createOverlay();
+this.dialog_box.show = this.show.bind(this);
+this.dialog_box.persistent_show = this.persistent_show.bind(this);
+this.dialog_box.hide = this.hide.bind(this);
+this.dialog_box.close = this.hide.bind(this);
+this.dialog_box.exit = this.hide.bind(this);
+
+this.parent_element = this.dialog_box.parentNode;
+
+this.dialog_box.style.position = "absolute";
+
+var e_dims = Element.getDimensions(this.dialog_box);
+var b_dims = Element.getDimensions(this.overlay);
+
+this.dialog_box.style.left = ((b_dims.width/2) - (e_dims.width/2)) + 'px';
+this.dialog_box.style.top = this.getScrollTop() + ((this.winHeight() - (e_dims.width/2))/2) + 'px';
+this.dialog_box.style.zIndex = this.overlay.style.zIndex + 1;
+},
+
+createOverlay: function() {
+if($('dialog_overlay')) {
+this.overlay = $('dialog_overlay');
+} else {
+this.overlay = document.createElement('div');
+this.overlay.id = 'dialog_overlay';
+Object.extend(this.overlay.style, {
+position: 'absolute',
+top: 0,
+left: 0,
+zIndex: 90,
+width: '100%',
+backgroundColor: '#000',
+display: 'none'
+});
+document.body.insertBefore(this.overlay, document.body.childNodes[0]);
+}
+},
+
+moveDialogBox: function(where) {
+Element.remove(this.dialog_box);
+if(where == 'back')
+this.dialog_box = this.parent_element.appendChild(this.dialog_box);
+else
+this.dialog_box = this.overlay.parentNode.insertBefore(this.dialog_box, this.overlay);
+},
+
+show: function() {
+this.overlay.style.height = this.bodyHeight()+'px';
+this.moveDialogBox('out');
+
+this.overlay.onclick = this.hide.bind(this);
+
+this.selectBoxes('hide');
+new Effect.Appear(this.overlay, {duration: 0.1, from: 0.0, to: 0.7});
+this.dialog_box.style.display = '';
+
+this.dialog_box.style.left = '0px';
+
+var e_dims = Element.getDimensions(this.dialog_box);
+
+this.dialog_box.style.left = ((this.winWidth()/2) - (e_dims.width)/2) + 'px';
+
+this.dialog_box.style.top = this.getScrollTop() + ((this.winHeight() - (e_dims.width/2))/2) + 'px';
+
+},
+
+getScrollTop: function() {
+return (window.pageYOffset)?window.pageYOffset:(document.documentElement &amp;&amp; document.documentElement.scrollTop)?document.documentElement.scrollTop:document.body.scrollTop;
+},
+
+persistent_show: function() {
+this.overlay.style.height = this.bodyHeight()+'px';
+this.moveDialogBox('out');
+
+this.selectBoxes('hide');
+new Effect.Appear(this.overlay, {duration: 0.1, from: 0.0, to: 0.3});
+
+this.dialog_box.style.display = '';
+this.dialog_box.style.left = '0px';
+var e_dims = Element.getDimensions(this.dialog_box);
+this.dialog_box.style.left = ((this.winWidth()/2) - (e_dims.width)/2) + 'px';
+
+},
+
+hide: function() {
+this.selectBoxes('show');
+new Effect.Fade(this.overlay, {duration: 0.1});
+this.dialog_box.style.display = 'none';
+this.moveDialogBox('back');
+$A(this.dialog_box.getElementsByTagName('input')).each(function(e){if(e.type!='submit')e.value=''});
+},
+
+selectBoxes: function(what) {
+$A(document.getElementsByTagName('select')).each(function(select) {
+Element[what](select);
+});
+
+if(what == 'hide')
+$A(this.dialog_box.getElementsByTagName('select')).each(function(select){Element.show(select)})
+},
+
+bodyWidth: function() { return document.body.offsetWidth || window.innerWidth || document.documentElement.clientWidth || 0; },
+bodyHeight: function() { return document.body.offsetHeight || window.innerHeight || document.documentElement.clientHeight || 0; },
+
+winWidth: function() {
+var viewportwidth;
+
+// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+
+if (typeof window.innerWidth != 'undefined')
+{
+viewportwidth = window.innerWidth;
+}
+
+// IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
+
+else if (typeof document.documentElement != 'undefined' &amp;&amp; typeof document.documentElement.clientWidth != 'undefined' &amp;&amp; document.documentElement.clientWidth != 0)
+{
+viewportwidth = document.documentElement.clientWidth;
+}
+
+// older versions of IE
+
+else
+{
+viewportwidth = document.getElementsByTagName('body')[0].clientWidth
+}
+return viewportwidth;
+
+},
+winHeight: function() {
+var viewportheight;
+
+// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+
+if (typeof window.innerHeight != 'undefined')
+{
+viewportheight = window.innerHeight
+}
+
+// IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
+
+else if (typeof document.documentElement != 'undefined' &amp;&amp; typeof document.documentElement.clientHeight != 'undefined' &amp;&amp; document.documentElement.clientHeight != 0)
+{
+viewportheight = document.documentElement.clientHeight;
+}
+
+// older versions of IE
+
+else
+{
+viewportheight = document.getElementsByTagName('body')[0].clientHeight;
+}
+return viewportheight;
+
+}
+
+});
+
+function editProperty(fullname, classname, fieldname, cb) {
+ new Dialog.Box("propeditor");
+ var propeditor = $('propeditor');
+ propeditor.cb = cb;
+ propeditor.show();
+ var docref = new XWiki.DocumentReference("$xcontext.getDatabase()", ['Catalog','Code'], 'CustomLiveTablePropertyEditor');
+ var doc = new XWiki.Document(docref);
+ var durl = doc.getURL("view", "xpage=plain&amp;page=" + fullname + "&amp;classname=" + classname + "&amp;fieldname=" + fieldname + "&amp;crtDoc=$!{doc.title}");
+ new Ajax.Updater(propeditor, durl, {method:"get",evalScripts:false,onComplete:function(f){
+    $('propeditorsave').onclick = function() {
+        var value = $('propeditorform')[0].value;
+        var surl = doc.getURL("view", "xpage=plain&amp;page=" + fullname + "&amp;classname=" + classname + "&amp;fieldname=" + fieldname + "&amp;value=" + value + "&amp;crtDoc=$!{doc.title}");
+        new Ajax.Request(surl, {method:"get",evalScripts:false,onComplete:function(f){
+            if(f.responseText.startsWith("&lt;p&gt;SAVED")) {
+              var res = f.responseText.substring(13);
+              res = res.substring(0, res.length-4);
+              $('propeditor').cb(res);
+            } else {
+              alert("Property saving failed: " + f.responseText);
+            }
+        }});
+        propeditor.hide();
+        return false;
+    }
+    $('propeditorcancel').onclick = function() {
+        propeditor.hide();
+        return false;
+    }
+ }});
+}
+&lt;/script&gt;
+{{/html}}
+#else
+The LiveTable property editor allows to extend livetables with editing fields to quickly edit the information from the data provided in the livetable. To use this feature you should include the page XWiki.LiveTablePropertyEditor in the page using the livetable to which you would like to add editors. Also you should set the field "link" to the value "editor" for each field you would like to be editable.
+
+{{warning}}
+This is a customized verion of the LiveTablePropertyEditor, tailored for one specific livetable. This will not work on other livetables.
+{{/warning}}
+
+#end
+{{/velocity}}</content>
+</xwikidoc>

@@ -35,7 +35,7 @@
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
-  <hidden>false</hidden>
+  <hidden>true</hidden>
   <content/>
   <object>
     <name>Catalog.Code.CatalogTemplate</name>
@@ -54,7 +54,7 @@
       <content1>
         <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
         <disabled>0</disabled>
-        <hint>Mesaj</hint>
+        <hint>Message</hint>
         <name>content1</name>
         <number>3</number>
         <prettyName>Message</prettyName>
@@ -112,20 +112,6 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </labFormula>
-      <studentGroups>
-        <customDisplay/>
-        <disabled>0</disabled>
-        <hint>Grupe</hint>
-        <name>studentGroups</name>
-        <number>7</number>
-        <picker>0</picker>
-        <prettyName>Student Groups</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </studentGroups>
       <totalFormula>
         <contenttype/>
         <customDisplay/>
@@ -146,7 +132,7 @@
       <year>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint>An</hint>
+        <hint/>
         <name>year</name>
         <number>2</number>
         <picker>0</picker>

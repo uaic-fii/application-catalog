@@ -39,29 +39,93 @@
   <content>{{velocity}}
 #set($class = $doc.getObject('Catalog.Code.CatalogClass').xWikiClass)
 #foreach($prop in $class.properties)
-  ; $doc.displayPrettyName($prop.name)
-  : $doc.display($prop.name)
+  #if($hasEdit)
+    ; $doc.displayPrettyName($prop.name)
+    : $doc.display($prop.name)
+  #elseif($prop.name=='course' || $prop.name=='year' || $prop.name=='content1')
+    ; $doc.displayPrettyName($prop.name)
+    : $doc.display($prop.name)
+  #end
 #end
 
+#if($hasEdit)
 #set ($columnsProperties = {
-  'doc.title': {"link":"view"},
+  'doc.title': {"type":"text"},
+  'registrationID': {"type":"hidden"},
   'courseName': {"type": "hidden"},
-  'doc.location': {"html":true},
-  'doc.date': {},
-  'doc.author': {"link":"author"},
+  'studentGroup': {"type": "text"},
+  'L1': {'type': 'number', 'link': 'editor'},
+  'L2': {'type': 'number', 'link': 'editor'},
+  'L3': {'type': 'number', 'link': 'editor'},
+  'L4': {'type': 'number', 'link': 'editor'},
+  'L5': {'type': 'number', 'link': 'editor'},
+  'L6': {'type': 'number', 'link': 'editor'},
+  'L7': {'type': 'number', 'link': 'editor'},
+  'L8': {'type': 'number', 'link': 'editor'},
+  'L9': {'type': 'number', 'link': 'editor'},
+  'L10': {'type': 'number', 'link': 'editor'},
+  'L11': {'type': 'number', 'link': 'editor'},
+  'L12': {'type': 'number', 'link': 'editor'},
+  'L13': {'type': 'number', 'link': 'editor'},
+  'attendances': {'type': 'number', 'link': 'editor'},
+  'bonus': {'type': 'number', 'link': 'editor'},
+  'premiere': {'type': 'number', 'link': 'editor'},
+  'exam': {'type': 'number', 'link': 'editor'},
+  'lab': {'type': 'number', "sortable":false,"filterable":false},
+  'total': {'type': 'number', "sortable":false,"filterable":false},
+  'situatie_finala': {"sortable":false,"filterable":false},
+  'reExam': {'type': 'number', 'link': 'editor'},
   '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
 })
+#else
+#set ($columnsProperties = {
+  'doc.title': {"type":"text"},
+  'registrationID': {"type":"hidden"},
+  'courseName': {"type": "hidden"},
+  'studentGroup': {"type": "text"},
+  'attendances': {'type': 'number'},
+   'L1': {'type': 'number'},
+  'L2': {'type': 'number'},
+  'L3': {'type': 'number'},
+  'L4': {'type': 'number'},
+  'L5': {'type': 'number'},
+  'L6': {'type': 'number'},
+  'L7': {'type': 'number'},
+  'L8': {'type': 'number'},
+  'L9': {'type': 'number'},
+  'L10': {'type': 'number'},
+  'L11': {'type': 'number'},
+  'L12': {'type': 'number'},
+  'L13': {'type': 'number'},
+  'bonus': {'type': 'number'},
+  'premiere': {'type': 'number'},
+  'exam': {'type': 'number'},
+  'lab': {'type': 'number', "sortable":false,"filterable":false},
+  'total': {'type': 'number', "sortable":false,"filterable":false},
+  'situatie_finala': {"sortable":false,"filterable":false},
+  'reExam': {'type': 'number'},
+  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+})
+#end
 #set ($options = {
+  "resultPage": "Catalog.Code.CustomLiveTableResults",
   'className': 'Catalog.Code.Course_Class',
   'translationPrefix': 'catalog.livetable.',
-  'extraParams' : "&amp;courseName=${doc.title}",
+  'extraParams' : "&amp;courseName=${doc.title}&amp;studentGroup_class=Catalog.Code.Student_Class&amp;registrationID_class=Catalog.Code.Student_Class&amp;courseDoc=${doc}",
   'tagCloud': true,
   'rowCount': 15,
   'maxPages': 10,
   'selectedColumn': 'doc.title',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.title', 'courseName', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+#set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
 #livetable('catalog' $columns $columnsProperties $options)
-{{/velocity}}</content>
+
+#if($hasEdit)
+{{livetableExporter livetable="catalog" customResults="Catalog.Code.CustomLiveTableResults" withPageName='false' withPageURL='false' filename="${doc.name}"/}}
+#end
+
+{{/velocity}}
+
+{{include reference="Catalog.Code.CustomLiveTablePropertyEditor" /}}</content>
 </xwikidoc>

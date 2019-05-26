@@ -84,18 +84,13 @@
 ##
 #macro(generateDocuments_Materii $an $space $typeOfDegree $delete)
   #if("$request.generate" == 'curricula')
-    #set($webHomeDocument = $xwiki.getDocument('Catalog.Courses.WebHome'))
-    #if($webHomeDocument.isNew())
-      #set($discard = $webHomeDocument.setContent('{{children /}}'))
-      #set($discard = $webHomeDocument.save())
-    #end
     #set($query = "where doc.object(Structure.Code.CourseClass).TypeofDegree = :degreeType")
     #set($results = $services.query.xwql($query).bindValue('degreeType', $typeOfDegree).execute())
     #set($docList = [])
     #foreach($course in $results)
       #set($document = $xwiki.getDocument($course))
       #if(!$document.isNew() &amp;&amp; "$document" != 'Structure.CourseTemplate')
-        #set($courseDocumentName = $stringtool.substringBefore("$document.name", 'Description') + $an)
+        #set($courseDocumentName = $stringtool.substringBefore("$document.name", 'Description'))
         #set($documentReference = $services.model.createDocumentReference($xcontext.database, $space, $courseDocumentName))
         #set($discard = $docList.add($documentReference))
         #set($newDoc = $xwiki.getDocument($documentReference))
@@ -139,6 +134,18 @@
 #macro(addCourseObjects $coursesList $documentToAlter)
   #set($discard = $coursesList.remove('Catalog.Code.CatalogTemplate'))
   #if(!$documentToAlter.getObject('Catalog.Code.Course_Class'))
+    #if(!$documentToAlter.getObject('XWiki.XWikiRights'))
+      #set($studObj = $documentToAlter.getObject('Catalog.Code.Student_Class'))
+      #set($studEmail = $studObj.getProperty('email').value.trim())
+      #set($query = "where doc.object(XWiki.XWikiUsers).email like '%${studEmail}%'")
+      #set($corespondingUser = $services.query.xwql($query).execute())
+      #if($corespondingUser.size()&gt;0)
+        #set($rightsObj = $documentToAlter.newObject('XWiki.XWikiRights'))
+        #set($discard = $rightsObj.set('levels', 'view'))
+        #set($discard = $rightsObj.set('users', $corespondingUser[0]))
+        #set($discard = $rightsObj.set('allow', 1))
+      #end
+    #end
     #foreach($course in $coursesList)
       #set($courseDoc = $xwiki.getDocument($course))
       #if(!$courseDoc.isNew())
@@ -169,6 +176,12 @@
         #addCourseObjects($courses, $studentDocument)
       #end
     #end
+    #set($studentsSpace = $xwiki.getDocument('Catalog.Students.WebPreferences'))
+    #set($globalRightsObj = $studentsSpace.newObject('XWiki.XWikiGlobalRights'))
+    #set($discard = $globalRightsObj.set('levels', 'view'))
+    #set($discard = $globalRightsObj.set('groups', 'XWiki.XWikiAllGroup'))
+    #set($discard = $globalRightsObj.set('allow', 0))
+    #set($discard = $studentsSpace.save())
   #end
 #end
 {{/velocity}}</content>

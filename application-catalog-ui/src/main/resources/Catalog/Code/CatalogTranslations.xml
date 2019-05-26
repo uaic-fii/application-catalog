@@ -38,12 +38,12 @@
   <hidden>true</hidden>
   <content># Class fields
 Catalog.Code.CatalogClass_Course=Materie
-Catalog.Code.CatalogClass_year=An
-Catalog.Code.CatalogClass_content1=Mesaj
-Catalog.Code.CatalogClass_labFormula=Formula nota laborator
-Catalog.Code.CatalogClass_totalFormula=Formula punctaj total
-Catalog.Code.CatalogClass_finalStateFormula=Formula situatie finala
-Catalog.Code.CatalogClass_groups=Grupe
+Catalog.Code.CatalogClass_year=Year
+Catalog.Code.CatalogClass_content1=Message
+Catalog.Code.CatalogClass_labFormula=Laboratory score formula
+Catalog.Code.CatalogClass_totalFormula=Final score formula
+Catalog.Code.CatalogClass_finalStateFormula=Final state formula
+Catalog.Code.CatalogClass_groups=Groups
 
 # Live table generic keys
 catalog.livetable.doc.title=Page Title
@@ -67,9 +67,9 @@ catalog.livetable.emptyvalue=-
 catalog.livetable.materie=Materie
 catalog.livetable.an=An
 catalog.livetable.content1=Mesaj
-catalog.livetable.labFormula=Formula nota laborator
-catalog.livetable.totalFormula=Formula punctaj total
-catalog.livetable.finalStateFormula=Formula situatie finala
+catalog.livetable.labFormula=Laboratory score formula
+catalog.livetable.totalFormula=Final socre formula
+catalog.livetable.finalStateFormula=Final state formula
 catalog.livetable.grupe=Grupe
 
 # Other keys
@@ -77,7 +77,32 @@ catalog.entry.name=Catalog
 
 # Deprecated keys
 catalog.dataSpace.title=Data
-</content>
+
+# Live table specific keys
+catalog.livetable.labGrades=Lab grades
+catalog.livetable.attendances=Attendances
+catalog.livetable.bonus=Bonus
+catalog.livetable.premiere=Premiere
+catalog.livetable.lab=Lab total
+catalog.livetable.exam=Exam
+catalog.livetable.reExam=Reexamination
+catalog.livetable.studentGroup=Student Group
+catalog.livetable.situatie_finala=Final state
+ catalog.livetable.total=Total
+catalog.livetable.L1=L1
+catalog.livetable.L2=L2
+catalog.livetable.L3=L3
+catalog.livetable.L4=L4
+catalog.livetable.L5=L5
+catalog.livetable.L6=L6
+catalog.livetable.L7=L7
+catalog.livetable.L8=L8
+catalog.livetable.L9=L9
+catalog.livetable.L10=L10
+catalog.livetable.L11=L11
+catalog.livetable.L12=L12
+catalog.livetable.L13=L13
+catalog.livetable.registrationID=Registration ID</content>
   <object>
     <name>Catalog.Code.CatalogTranslations</name>
     <number>0</number>

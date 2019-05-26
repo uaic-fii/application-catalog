@@ -20,54 +20,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="Catalog.Code.CatalogHomeSheet" locale="">
+<xwikidoc version="1.3" reference="Catalog.Code.CatalogMacros" locale="">
   <web>Catalog.Code</web>
-  <name>CatalogHomeSheet</name>
+  <name>CatalogMacros</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <parent>WebHome</parent>
+  <parent>Catalog.Code.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
-  <title/>
+  <title>Catalog Macros</title>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content>{{include reference='Catalog.Code.GenerateStructure' /}}
-
-{{velocity}}
-#if($xcontext.action == 'edit')
-  #editFormByPass()
-  #displayGenerateCourses()
-  #displayImportStudents()
-  #generateDocuments_Materii($request.an, ["Catalog", "$request.an"], 'Bachelor')
-  #displayInitializeStudents()
-  #initializeStudents()
-  #foreach($ref in $referenceList_Materii)
-    [[$ref]]
-  #end
-#else
-  #set ($columnsProperties = {
-    'doc.title': {"link":"view"},
-    'doc.location': {"html":true},
-    'doc.date': {},
-    'doc.author': {"link":"author"},
-    '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
-  })
-  #set ($options = {
-    'className': 'Catalog.Code.CatalogClass',
-    'translationPrefix': 'catalog.livetable.',
-    'tagCloud': true,
-    'rowCount': 15,
-    'maxPages': 10,
-    'selectedColumn': 'doc.title',
-    'defaultOrder': 'asc'
-  })
-  #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
-  #livetable('catalog' $columns $columnsProperties $options)
-#end
-{{/velocity}}</content>
+  <content/>
 </xwikidoc>
