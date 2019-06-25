@@ -41,7 +41,7 @@
     <name>Catalog.WebPreferences</name>
     <number>1</number>
     <className>XWiki.XWikiGlobalRights</className>
-    <guid>3ddcd7b9-2e57-4363-a405-e2dae6188bb4</guid>
+    <guid>88143242-aa72-4fdd-9a7a-d56fef6790b6</guid>
     <class>
       <name>XWiki.XWikiGlobalRights</name>
       <customClass/>
@@ -111,10 +111,10 @@
       <allow>0</allow>
     </property>
     <property>
-      <groups>XWiki.students</groups>
+      <groups>XWiki.XWikiAllGroup</groups>
     </property>
     <property>
-      <levels>edit,script</levels>
+      <levels>edit</levels>
     </property>
     <property>
       <users/>

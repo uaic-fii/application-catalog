@@ -39,6 +39,9 @@
   <content>{{include reference='Catalog.Code.GenerateStructure' /}}
 
 {{velocity}}
+#if(!$hasEdit)
+  #set($discard = $xwiki.ssx.use("Catalog.Code.CatalogHomeSheet"))
+#end
 #if($xcontext.action == 'edit')
   #editFormByPass()
   #displayGenerateCourses()
@@ -66,8 +69,173 @@
     'selectedColumn': 'doc.title',
     'defaultOrder': 'asc'
   })
-  #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+  #if(!($hasEdit || $isGuest))
+    #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author'])
+  #else
+    #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+  #end
   #livetable('catalog' $columns $columnsProperties $options)
 #end
+
+#if(!($hasEdit || $isGuest))
+    #set ($columnsProperties = {
+      'doc.title': {"type":"hidden"},
+      'registrationID': {"type":"hidden"},
+      'courseName': {"type": "text"},
+      'studentGroup': {"type": "hidden"},
+      'attendances': {'type': 'number',"sortable":false},
+      'L1': {'type': 'number',"sortable":false},
+      'L2': {'type': 'number',"sortable":false},
+      'L3': {'type': 'number',"sortable":false},
+      'L4': {'type': 'number',"sortable":false},
+      'L5': {'type': 'number',"sortable":false},
+      'L6': {'type': 'number',"sortable":false},
+      'L7': {'type': 'number',"sortable":false},
+      'L8': {'type': 'number',"sortable":false},
+      'L9': {'type': 'number',"sortable":false},
+      'L10': {'type': 'number',"sortable":false},
+      'L11': {'type': 'number',"sortable":false},
+      'L12': {'type': 'number',"sortable":false},
+      'L13': {'type': 'number',"sortable":false},
+      'bonus': {'type': 'number',"sortable":false},
+      'premiere': {'type': 'number',"sortable":false},
+      'exam': {'type': 'number',"sortable":false},
+      'lab': {'type': 'number', "sortable":false,"filterable":false},
+      'total': {'type': 'number', "sortable":false,"filterable":false},
+      'situatie_finala': {"sortable":false,"filterable":false},
+      'reExam': {'type': 'number',"sortable":false},
+      '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+    })
+    #set ($options = {
+    "resultPage": "Catalog.Code.CustomLiveTableResultsAllCourses",
+    'className': 'Catalog.Code.Course_Class',
+    'translationPrefix': 'catalog.livetable.',
+    'extraParams' : "&amp;doc.fullName=Catalog.Students.TuxPinguinescu",
+    'tagCloud': true,
+    'rowCount': 15,
+    'maxPages': 10,
+    'selectedColumn': 'courseName',
+    'defaultOrder': 'asc'
+  })
+  ##set ($columns = ['courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
+  #set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
+  #livetable('catalogStud' $columns $columnsProperties $options)
+#end
 {{/velocity}}</content>
+  <object>
+    <name>Catalog.Code.CatalogHomeSheet</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>9d165d65-10bc-4d5a-a4f1-a4fb2ce9c837</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>.document-menu{
+  display: none;
+}</code>
+    </property>
+    <property>
+      <contentType/>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
 </xwikidoc>

@@ -1,0 +1,422 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Catalog.Code.CustomLiveTableResultsAllCourses" locale="">
+  <web>Catalog.Code</web>
+  <name>CustomLiveTableResultsAllCourses</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>CustomLiveTableResultsAllCourses</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{include reference="XWiki.LiveTableResultsMacros" /}}
+
+{{include reference="Catalog.Code.CatalogMacros" /}}
+
+{{velocity wiki="false"}}
+## the $extra variable is passed to the call to #gridresultwithfilter below and is used to perform some default
+## filtering on the LiveTable data even when the user has not performed any column filtering yet.
+## When users start using column filtering, the generated DB query will combine both the default filtering and what the
+## user has entered in the column filters.
+#set ($EXCEL = 'excel')
+#set ($CSV = 'csv')
+#if(!$hasEdit)
+  #set($userDocName = $xwiki.getDocument($xcontext.user).name)
+  #set($query = ", BaseObject as obj, StringProperty as prop where doc.fullName = obj.name and obj.className = 'Catalog.Code.Student_Class' and obj.id=prop.id.id and prop.id.name='email' and REPLACE(SUBSTRING(TRIM(prop.value), 1, LOCATE('@', TRIM(prop.value))-1),'.','') = TRIM('$userDocName')")
+  #set($corespondingStudent = $services.query.hql($query).execute())
+  #set($crtstud = $xwiki.getDocument("$corespondingStudent[0]"))
+  #set($objlist = $crtstud.getObjects('Catalog.Code.Course_Class'))
+#end
+
+#macro(gridresultwithfilter_buildQuery $className $collist $filterfrom $filterwhere $filterParams)
+  ## Additional columns; should *not* contain raw parameters, all added column names must be filtered
+  #set($fromSql = '')
+  ## Parametrized filter part of the query
+  #set($whereSql = '')
+  ## List of values to use with $whereSql
+  #set($whereParams = [])
+  #set($class = $xwiki.getDocument($className).getxWikiClass())
+  ##
+  ## Add the columns needed for the actual data
+  ##
+  #set($tablelist = [])
+  #foreach($colname in $collist)
+    #livetable_addColumnToQuery($colname)
+  #end
+  ##
+  ## Tag filtering
+  ##
+  #if($request.tag)
+    #set($fromSql = "${fromSql} , BaseObject as tobject, DBStringListProperty as tagprop")
+    #set($whereSql = "${whereSql} and tobject.className='XWiki.TagClass' and tobject.name=doc.fullName and tobject.id=tagprop.id.id and tagprop.id.name='tags' and (")
+    #foreach($tag in $request.getParameterValues('tag'))
+      #if($velocityCount &gt; 1) #set($whereSql = "${whereSql} and ") #end
+      ## Tags are case insensitive but they are stored unchanged which means we have to normalize them when performing
+      ## a query. Unfortunately there's no simple way to match multiple tags (AND operator). If we join the list of
+      ## tags in the FROM clause then we match at least one of the tags (OR operator). The only remaining option is to
+      ## check that the list of tags contains each of the desired tags. HQL doesn't help us to lower-case the entire
+      ## list of tags so we use an inner select for this.
+      #set($whereSql = "${whereSql} lower(?) in (select lower(tag) from tagprop.list tag)")
+      #set($discard = $whereParams.add("${tag}"))
+    #end
+    #set($whereSql = "${whereSql})")
+  #end
+  ##
+  ##
+  ## Order
+  ##
+  ## if the object for the classname of the order column is not already in the from sql, put it
+  #macro(addObjectClause $objectAlias)
+    #if($fromSql.indexOf($objectAlias) &lt; 0)
+      #set($fromSql = "${fromSql}, BaseObject $objectAlias")
+      #set($whereSql = "${whereSql} and ${objectAlias}.name = doc.fullName and ${objectAlias}.className = ?")
+      #set($discard = $whereParams.add($propClassName))
+    #end
+  #end
+  ## Set the order clause for a field. We first ignore the case using the lower function (so that e.g. 'aaa' equals 'AAA')
+  ## but then consider it only for equal values (so that e.g. 'AAA' comes before 'aaa').
+  #macro(setOrderClause $fieldName $direction $useRawValue)
+    #if ($useRawValue)
+      #set($orderSql = " order by ${fieldName} ${direction}")
+    #else
+      #set($orderSql = " order by lower(${fieldName}) ${direction}, ${fieldName} ${direction}")
+    #end
+  #end
+  #set($order = "$!request.sort")
+  #if ($order == 'doc.location')
+    #set ($order = 'doc.fullName')
+  #end
+  #set ($orderSql = '')
+  #if($order != '')
+    #set($orderDirection = "$!{request.get('dir').toLowerCase()}")
+    #if("$!orderDirection" != '' &amp;&amp; "$!orderDirection" != 'asc')
+      #set($orderDirection = 'desc')
+    #end
+    #livetable_getTableAlias($order)
+    #if($order.startsWith('doc.'))
+      ## The column is a document field.
+      ##
+      ## These document fields need to be ordered as raw values and not as strings.
+      #set($rawDocumentFields = ['translation', 'date', 'contentUpdateDate', 'creationDate', 'elements', 'minorEdit1', 'hidden'])
+      #set($documentField = $stringtool.removeStart($order, 'doc.'))
+      #setOrderClause(${safe_tableAlias.replace('_','.')}, ${orderDirection},  $rawDocumentFields.contains($documentField))
+    #else
+      ## The column is an object property.
+      ##
+      ## Resolve the property.
+      #livetable_getPropertyClassAndType($order)
+      #set ($multiselect = "$!{propClass.get($order).getProperty('multiSelect').getValue()}")
+      ## We can only handle single values, not multiselect ones.
+      #if ($multiselect != '1')
+        ## Some property types do not need lowercasing since they have unique values by design, so we use the raw values to order.
+        #set($rawPropertyTypes = ['NumberClass', 'BooleanClass', 'DateClass', 'LevelsClass'])
+        ## If the order column is also a filer column, this means that it was already added to the query and all we need to do is to add it to the order clause.
+        #if(!$tablelist.contains($order))
+          ## The order column is not also a filter column, so not yet defined in the query.
+          ## We need to first define it (to the from and where clauses) before we can add it to the order clause.
+          ##
+          ## Resolve the table name of the property to be used in the from clause below.
+          #livetable_getTableName($order)
+          ## If the sort column has a _class specified, join that object in
+          #set($orderObjectAlias = 'obj')
+          #if($propClassName != '' &amp;&amp; "$!propClass" != '')
+            ## prepare the alias of the BaseObject table that corresponds to the class of this column
+            #set($orderObjectAlias = "$!{propClassName.replaceAll('[^a-zA-Z0-9_]', '')}_obj")
+            #addObjectClause($orderObjectAlias)
+          #end
+          #set($fromSql = "${fromSql}, ${tableName} ${safe_tableAlias}")
+          ## FIXME: Check if this is indeed a property of the class. Hint: $propType can be used.
+          ## Conditions are put on the object coresponding to the column of the order ($orderObjectAlias), which depends on which is the class of the $order
+          #set($whereSql = "${whereSql} and ${orderObjectAlias}.id=${safe_tableAlias}.id.id and ${safe_tableAlias}.name = ?")
+          #set($discard = $whereParams.add("${order}"))
+        #end
+        ## Add the column to the order clause.
+        #setOrderClause("${safe_tableAlias}.value", ${orderDirection}, $rawPropertyTypes.contains($propType))
+      #end
+    #end
+  #end
+  ##
+  ##
+  ## Compute the final queries
+  ##
+  #set($sqlParams = [])
+  #set($tagsMatchingParams = [])
+  #set($allMatchingParams = [])
+  #if("$!className" != '')
+    ## Class query
+    #set($sql = "SELECT doc.fullName, prop.value FROM XWikiDocument AS doc, BaseObject as obj, StringProperty as prop $!fromSql $!filterfrom where obj.name=doc.fullName and obj.id=prop.id.id and obj.className = ? and doc.fullName not in (?, ?) $!whereSql $!filterwhere")
+    #set($discard = $sqlParams.addAll(["${className}", "${className}Template", ${className.replaceAll('Class$', 'Template')}]))
+    #set($discard = $sqlParams.addAll($whereParams))
+    ##
+    #set($tagsMatchingFiltersFrom = ", BaseObject as obj $!fromSql $!filterfrom")
+    #set($tagsMatchingFiltersWhere = "obj.name=doc.fullName and obj.className = ? and doc.fullName not in (?, ?) $!whereSql $!filterwhere")
+    #set($discard = $tagsMatchingParams.addAll(["${className}", "${className}Template", ${className.replaceAll('Class$', 'Template')}]))
+    #set($discard = $tagsMatchingParams.addAll($whereParams))
+    ##
+    #set($allMatchingTagsFrom = ", BaseObject as obj $!filterfrom")
+    #set($allMatchingTagsWhere = "obj.name=doc.fullName and obj.className = ? and doc.fullName not in (?, ?) $!filterwhere")
+    #set($discard = $allMatchingParams.addAll(["${className}", "${className}Template", ${className.replaceAll('Class$', 'Template')}]))
+    ##
+    #if($filterParams)
+      #set($discard = $sqlParams.addAll($filterParams))
+      #set($discard = $tagsMatchingParams.addAll($filterParams))
+      #set($discard = $allMatchingParams.addAll($filterParams))
+    #end
+  #else
+    ## Document query
+    #set($sql = "$!fromSql $!filterfrom where 1=1 $!whereSql $!filterwhere")
+    #set($discard = $sqlParams.addAll($whereParams))
+    ##
+    #set($tagsMatchingFiltersFrom = "$!fromSql $!filterfrom")
+    #set($tagsMatchingFiltersWhere = "1=1 $!whereSql $!filterwhere")
+    #set($discard = $tagsMatchingParams.addAll($whereParams))
+    ##
+    #set($allMatchingTagsFrom = "$!filterfrom")
+    #set($allMatchingTagsWhere = "1=1 $!filterwhere")
+    ##
+    #if($filterParams)
+      #set($discard = $sqlParams.addAll($filterParams))
+      #set($discard = $tagsMatchingParams.addAll($filterParams))
+      #set($discard = $allMatchingParams.addAll($filterParams))
+    #end
+  #end
+  #if($orderSql != '')
+    #set($sql = "$sql $!{orderSql}")
+  #end
+#end
+
+#macro(gridresult_buildRowsJSON $map)
+  #set($offset = $mathtool.toInteger($request.get('offset')))
+  ## Offset starts from 0 in velocity and 1 in javascript
+  #set($offset = $offset - 1)
+  #if(!$offset || $offset &lt; 0)
+    #set($offset = 0)
+  #end
+  #set($limit = $mathtool.toInteger($request.get('limit')))
+  #if(!$limit)
+    #set ($limit = 15)
+  #end
+  #set($query = $services.query.hql($sql))
+  ## Apply query filters if defined. Otherwise use default.
+  #foreach ($queryFilter in $stringtool.split($!request.queryFilters, ', '))
+    #set ($query = $query.addFilter($queryFilter))
+  #end
+  #set ($query = $query.setLimit($limit).setOffset($offset).bindValues($sqlParams))
+  #set($items = $query.execute())
+  #set($discard = $map.put('totalrows', $query.count()))
+  #set($discard = $map.put('returnedrows', $mathtool.min($items.size(), $limit)))
+  #set($discard = $map.put('offset', $mathtool.add($offset, 1)))
+  #set($rows = [])
+  #foreach($item in $items)
+    #gridresult_buildRowJSON($item[0] $rows $item[1])
+  #end
+  #set($discard = $map.put('rows', $rows))
+#end
+
+#macro(gridresult_buildRowJSON $item $rows $itemCName)
+  ## Handle both the case where the "language" filter is used and thus languages are returned too and the case where
+  ## only the document name is returned. When more than the document name is returned the $item variable is a list.
+  #if($item.size())
+    ## Extract doc name and doc language from $item
+    #set($docName = $item[0])
+    #set($docLanguage = $item[1])
+  #else
+    #set($docName = $item)
+    #set($docLanguage = '')
+  #end
+  #set ($docReference = $services.model.resolveDocument($docName))
+  #set($newItem = $itemCName)
+  #set ($row = {
+    'doc_viewable': $services.security.authorization.hasAccess('view', $docReference),
+    'doc_fullName': $services.model.serialize($docReference, 'local'),
+    'doc_space': $services.model.serialize($docReference.parent, 'local'),
+    'doc_location': "#hierarchy($docReference, {'limit': 5, 'plain': false, 'local': true, 'displayTitle': false})",
+    'doc_url': $xwiki.getURL($docReference),
+    'doc_space_url': $xwiki.getURL($docReference.parent),
+    'doc_wiki': $docReference.wikiReference.name,
+    'doc_wiki_url': $xwiki.getURL($docReference.wikiReference),
+    'doc_hasadmin': $xwiki.hasAdminRights(),
+    'doc_hasedit': $services.security.authorization.hasAccess('edit', $docReference),
+    'doc_hasdelete': $services.security.authorization.hasAccess('delete', $docReference),
+    'doc_edit_url': $xwiki.getURL($docReference, 'edit'),
+    'doc_copy_url': $xwiki.getURL($docReference, 'view', 'xpage=copy'),
+    'doc_delete_url': $xwiki.getURL($docReference, 'delete'),
+    'doc_rename_url': $xwiki.getURL($docReference, 'view', 'xpage=rename&amp;step=1')
+  })
+  #set ($isTranslation = "$!docLanguage" != '' &amp;&amp; $xwiki.getLanguagePreference() != $docLanguage)
+  ## Display the language after the document name so that not all translated documents have the same name displayed.
+  #set ($row.doc_name = "$docReference.name#if ($isTranslation) ($docLanguage)#end")
+  #set ($row.doc_hascopy = $row.doc_viewable)
+  #set ($row.doc_hasrename = $row.doc_hasdelete)
+  #set ($row.doc_hasrights = $row.doc_hasedit &amp;&amp; $isAdvancedUser)
+  #if ($docReference.name == 'WebHome')
+    ## For nested pages, use the page administration.
+    #set ($webPreferencesReference = $services.model.createDocumentReference('WebPreferences', $docReference.lastSpaceReference))
+    #set ($row.doc_rights_url = $xwiki.getURL($webPreferencesReference, 'admin', 'editor=spaceadmin&amp;section=PageRights'))
+  #else
+    ## For terminal pages, use the old rights editor.
+    ## TODO: We should create a page administration for terminal pages too.
+    #set ($row.doc_rights_url = $xwiki.getURL($docReference, 'edit', 'editor=rights'))
+  #end
+  #if ($row.doc_viewable)
+    #set ($itemDoc = $xwiki.getDocument($docReference))
+    ## Handle translations. We need to make sure we display the data associated to the correct document if the returned
+    ## result is a translation.
+    #if ($isTranslation)
+      #set ($translatedDoc = $itemDoc.getTranslatedDocument($docLanguage))
+    #else
+      #set ($translatedDoc = $itemDoc.translatedDocument)
+    #end
+    #set($discard = $itemDoc.use($className))
+    #set($discard = $row.put('doc_edit_url', $itemDoc.getURL($itemDoc.defaultEditMode)))
+    #set($discard = $row.put('doc_author_url', $xwiki.getURL($translatedDoc.author)))
+    #set($discard = $row.put('doc_date', $xwiki.formatDate($translatedDoc.date)))
+    #set($discard = $row.put('doc_title', $translatedDoc.plainTitle))
+    #set($rawTitle = $translatedDoc.title)
+    #if($rawTitle != $row['doc_title'])
+	  #set($discard = $row.put('doc_title_raw', $rawTitle))
+    #end
+    #set($discard = $row.put('doc_author', $xwiki.getPlainUserName($translatedDoc.authorReference)))
+    #set($discard = $row.put('doc_creationDate', $xwiki.formatDate($translatedDoc.creationDate)))
+    #set($discard = $row.put('doc_creator', $xwiki.getPlainUserName($translatedDoc.creatorReference)))
+    #foreach($colname in $collist)
+      #gridresult_buildColumnJSON($colname $row $newItem)
+    #end
+  #end
+  #set($discard = $rows.add($row))
+#end
+
+#macro(gridresult_buildColumnJSON $colname $row $cParam)
+  #if($colname.startsWith('doc.'))
+  #elseif($colname == '_action')
+    #set($discard = $row.put($colname, $services.localization.render("${request.transprefix}actiontext")))
+  #elseif($colname == '_attachments')
+    #livetable_getAttachmentsList($translatedDoc)
+    #set($discard = $row.put($colname, $attachlist))
+  #elseif($colname == '_avatar')
+    #livetable_getAvatar($itemDoc)
+    #set($discard = $row.put($colname, $avatar))
+  #elseif($colname == '_images')
+    #livetable_getImagesList($itemDoc)
+    #set($discard = $row.put($colname, $imagesList))
+  #else
+    #livetable_getPropertyClassAndType($colname)
+    #if(!$propClass.equals($class))
+      #set($discard = $itemDoc.use($propClassName))
+    #end
+    #set($objno = $offset + $rows.size())
+    #set($objIdentifier = $cParam)
+    #set($associatedObj = $itemDoc.getObject("$request.classname",'courseName',$objIdentifier))
+    #set($fieldValue = "$!itemDoc.getValue($colname, $associatedObj)")
+    #set($fieldDisplayValue = "$!itemDoc.display($colname, 'view', $associatedObj)")
+    #if($fieldDisplayValue == '')
+      #set($fieldDisplayValue = $services.localization.render("${request.transprefix}emptyvalue"))
+    #end
+    #set($fieldUrl = '')
+    ## Only retrieve an URL for a DBListClass item
+    #if(($propType == 'DBListClass' || $propType == 'PageClass') &amp;&amp; $propClass.get($colname).getProperty('multiSelect').value != 1)
+      #set($fieldUrl = $xwiki.getURL($fieldValue))
+      #if($fieldUrl == $xwiki.getURL($services.model.resolveDocument('', 'default', $doc.documentReference.extractReference('WIKI'))))
+        #set($fieldUrl = '')
+      #end
+    #end
+    #set($discard = $row.put($colname, $fieldDisplayValue.replaceFirst($regextool.quote('{{html clean="false" wiki="false"}}'), '').replaceAll("$regextool.quote('{{/html}}')$", '')))
+    #set($discard = $row.put("${colname}_value", $fieldValue))
+    #set($discard = $row.put("${colname}_url", $fieldUrl))
+    ## Reset to the default class
+    #set($discard = $itemDoc.use($className))
+  #end
+#end
+##########################
+## The following code is copied form the standard XWiki.LiveTableResults, with only the replacement of gridresultswithfilter with gridresultswithfilterexport at the end, if an export is asked for.
+## We should try to avoid copying as much as possible, but for safety we need to export.
+##########################
+#set ($extra = '')
+#set ($params = [])
+#if ("$!request.space" != '')
+  #set ($extra = "${extra} and doc.space = ?")
+  #set ($discard = $params.add($request.space))
+#end
+#if ("$!request.location" != '')
+  #set ($extra = "${extra} and lower(doc.fullName) like lower(?) escape '!'")
+  #set ($locationFilterValue = $request.location)
+  ## Note: the "_", "[", and the "%" characters have special meanings in standard SQL servers (they behave as wildcards).
+  ## However, it is not what the user expects (e.g. http://jira.xwiki.org/browse/XWIKI-12608).
+  ## As a consequence, we must escape these characters.
+  ## See http://www.jguru.com/faq/view.jsp?EID=8881 to understand why we use the special clause 'escape' above.
+  ## Since we use '!' for the escaping, we also double existing ones.
+  #set ($locationFilterValue = $locationFilterValue.replaceAll('([\[%_!])', '!$1'))
+  ## Because the user might filter with "/" as separator we replace that by "%", because it could be "."
+  ## (the space separator) or "/" (as it is in the document name).
+  ## In addition, using "%" (any sequence of character) instead of "_" (any single character) gives the ability
+  ## to filter on different levels:
+  ##   e.g. filtering on "Blog/Intro" will return "Blog.BlogIntroduction".
+  ##        On the other hand, it will also returns: "BlogForIntrospection", which might be unexpected.
+  #set ($locationFilterValue = $locationFilterValue.replaceAll('/', '%'))
+  #set ($discard = $params.add("%${locationFilterValue}%"))
+#end
+#if ("$!request.parent" != '')
+  #set ($extra = "${extra} and doc.parent = ?")
+  #set ($discard = $params.add($request.parent))
+#end
+#if ("$!request.orphaned" == '1')
+  #set ($homepage = $services.wiki.getById($services.wiki.currentWikiId).mainPageReference)
+  #set ($homepageFullName = $services.model.serialize($homepage, 'local'))
+  ## On Oracle the empty parent is actually null.
+  #set ($extra = "${extra} and (doc.parent = '' or doc.parent is null) and doc.fullName &lt;&gt; ?")
+  #set ($discard = $params.add($homepageFullName))
+#end
+#if ($request.outputSyntaxType == $EXCEL || $request.outputSyntaxType == $CSV)
+  #gridresultwithfilterexport("$!request.classname" $request.collist.split(',') '' "${extra}" $params $request.outputSyntaxType)
+#elseif ($request.outputSyntaxType == 'json')
+  #gridresultwithfilter("$!request.classname" $request.collist.split(',') '' "${extra}" $params)
+#else
+  #if("$!{request.xpage}" == 'plain')
+    $response.setContentType('application/json')
+  #end
+  ##==================
+  ## Initialize the map that will store the JSON data.
+  ##==================
+  #set($map = {})
+  ##==================
+  ## Build the JSON in memory using the previous map
+  ##==================
+  #gridresult_buildJSON("$!request.classname" $request.collist.split(',') $map)
+  ##==================
+  ## Modify the JSON data from the map or add new data.
+  ##==================
+  #addExtraColumns()
+  ##==================
+  ## Serialize the map in the JSON format.
+  ##==================
+  $jsontool.serialize($map)
+#end
+{{/velocity}}</content>
+</xwikidoc>

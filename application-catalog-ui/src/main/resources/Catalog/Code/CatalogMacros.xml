@@ -36,5 +36,384 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content/>
+  <content>{{velocity output=false}}
+#macro(getFormula $formula)
+  #set($result = '')
+  #set($courseDoc = $xwiki.getDocument(${request.courseDoc}))
+  #set($formulaValue = $courseDoc.getObject('Catalog.Code.CatalogClass').getProperty($formula).value)
+  #evaluate(${formulaValue})##must return $result
+#end
+
+#macro(initializeVars)
+  #set($cols = $request.collist.split(','))
+  #set($Integer = 0)
+  #set($pageTitle = $!{row.get($cols[0].replace('.','_'))})
+  #set($registrationID = $!{row.get($cols[1]).replace('-','')})
+  #set($studentGroup = $!{row.get($cols[2]).replace('-','')})
+  #set($courseName =  $!{row.get($cols[3]).replace('-','')})
+  #setNumeralValue(4)
+  #set($attendances =  $variable)
+  #setNumeralValue(5)
+  #set($L1 = $variable)
+  #setNumeralValue(6)
+  #set($L2 = $variable)
+  #setNumeralValue(7)
+  #set($L3 = $variable)
+  #setNumeralValue(8)
+  #set($L4 = $variable)
+  #setNumeralValue(9)
+  #set($L5 = $variable)
+  #setNumeralValue(10)
+  #set($L6 = $variable)
+  #setNumeralValue(11)
+  #set($L7 = $variable)
+  #setNumeralValue(12)
+  #set($L8 = $variable)
+  #setNumeralValue(13)
+  #set($L9 = $variable)
+  #setNumeralValue(14)
+  #set($L10 = $variable)
+  #setNumeralValue(15)
+  #set($L11 = $variable)
+  #setNumeralValue(16)
+  #set($L12 = $variable)
+  #setNumeralValue(17)
+  #set($L13 = $variable)
+  #setNumeralValue(18)
+  #set($bonus = $variable)
+  #setNumeralValue(19)
+  #set($premiere = $variable)
+  #setNumeralValue(20)
+  #set($exam = $variable)
+  #setNumeralValue(23)
+  #set($reExam = $variable)
+  #set($rowValues = [$pageTitle,$studentGroup,$attendances,$L1,$L2,$L3,$L4,$L5,$L6,$L7,$L8,$L9,$L10,$L11,$L12,$L13,$bonus,$premiere,$exam])
+#end
+
+#macro(SUM $from $to)
+  #set($sum = 0)
+  #foreach($i in [$from..$to])
+    #if("$!rowValues[$i]"!='')
+      #set($sum = $!sum + $!rowValues[$i])
+    #end
+  #end
+#end
+
+#macro(setNumeralValue $i)
+  #set($rawVal = $!{row.get($cols[$i]).replace('-','').trim()})
+  #if($stringtool.isNumeric($rawVal))
+    #set($variable = $Integer.parseInt($!{rawVal}))
+  #else
+    #set($variable = 0)
+  #end
+#end
+
+#macro(totalLabFormula)
+  #set($labScore = 0)
+  #SUM(2,17)
+  #set($labScore = $sum)
+  #getFormula('labFormula')
+  #if("$!result"!='')
+    #set($labScore = $result)
+  #end
+  #set($discard = $row.put('lab',  $labScore))
+#end
+
+#macro(totalFormula)
+  #set($totalScore = $exam + $labScore)
+  #getFormula('totalFormula')
+  #if("$!result"!='')
+    #set($totalScore = $result)
+  #end
+  #set($discard = $row.put('total',  $totalScore))
+#end
+
+#macro(finalStatus)
+  #set($finalStatusResult = "-")
+  #if($labScore==0)
+    #set($finalStatusResult = "Absent")
+  #else
+    #SUM(2,8)
+    #if($sum&lt;50)
+      #set($finalStatusResult = "Laborator nepromovat")
+    #else
+      #SUM(9,17)
+      #if($sum&lt;60)
+        #set($finalStatusResult = "Proiect nepromovat")
+      #else
+        #if($exam==0)
+          #set($finalStatusResult = "Absent examen")
+        #else
+          #if($exam&lt;90)
+            #set($finalStatusResult = "Picat examen")
+          #else
+            #set($finalStatusResult = "Promovat materie")
+          #end
+        #end
+      #end
+    #end
+  #end
+  #getFormula('finalStateFormula')
+  #if("$!result"!='')
+    #set($finalStatusResult = $result)
+  #end
+  #set($discard = $row.put('situatie_finala', $finalStatusResult))
+#end
+
+#macro(addExtraColumns)
+  #foreach($row in $map.get('rows'))
+    #if($row.get('studentGroup'))
+      #set($rowDoc = $xwiki.getDocument($row.get('doc_fullName')))
+      #set($rowObj = $rowDoc.getObject('Catalog.Code.Student_Class'))
+      #set($discard = $row.put('studentGroup', $rowObj.getProperty('studentGroup').value))
+      #set($discard = $row.put('registrationID', $rowObj.getProperty('registrationID').value))
+      #initializeVars()
+      #totalLabFormula()
+      #totalFormula()
+      #finalStatus()
+    #end
+  #end
+#end
+#**
+ * This macro exports the data from a livetable to an Excel or CSV file. It does the same as the livetable Ajax call, but it returns the results in the requested format.
+ * It calls the standard macro 'gridresultswithfilter_buildJSON' and serializes the result in XLS/CSV instead of JSON.
+ *#
+#macro(gridresultwithfilterexport $className $columnList $filterFrom $filterWhere $filterParams $format)
+  #macro(initializeWriter)
+    #if ($format == $EXCEL)
+      #set ($excelWriter = $xwiki.calc)
+      #set ($workbook = $excelWriter.getWritableWorkbook())
+      #set ($sheet = $workbook.createSheet("XWiki", 0))
+    #elseif ($format == $CSV)
+      #set ($csvWriter = $xwiki.parseGroovyFromPage("Macros.CsvWriter"))
+      #set ($discard = $csvWriter.initialize($response.writer))
+      #set ($rowValues = [])
+    #end
+  #end
+  #macro(setColumnView $columnCount $val)
+    #if ($format == $EXCEL)
+      #set ($discard = $sheet.setColumnView($columnCount, $val))
+    #end
+  #end
+  #macro(setCell $rowCount $columnCount $text)
+    #if ($format == $EXCEL)
+      #set ($discard = $excelWriter.setLabelCell($sheet, $rowCount, $columnCount, $text))
+    #elseif ($format == $CSV)
+      #set ($discard = $rowValues.add($text))
+    #end
+  #end
+  #macro(writeRow)
+    #if ($format == $CSV)
+      #set ($discard = $csvWriter.writeNext($rowValues))
+    #end
+  #end
+  #macro(removeColumn $columnNo)
+    #if ($format == $EXCEL)
+      #set ($discard = $sheet.removeColumn($columnNo))
+    #end
+  #end
+  ## Set file name from parameters, if any is passed
+  #macro(setFileName)
+    #if ("$!request.filename" != '')
+      #if ($format == $EXCEL)
+        #set ($filename = "$!{request.filename}.xls")
+      #elseif ($format == $CSV)
+        #set ($filename = "$!{request.filename}.csv")
+      #end
+    #else
+      #if ($format == $EXCEL)
+        #set ($filename = 'data.xls')
+      #elseif ($format == $CSV)
+        #set ($filename = 'data.csv')
+      #end
+    #end
+  #end
+  #macro(setResponseHeaders)
+    #setFileName()
+    #set ($contentHeader = 'inline; filename="' + $filename + '"')
+    #set ($discard = $response.setHeader('Content-Disposition', $contentHeader))
+    ## Start Internet Explorer file downloads over SSL do not work with the cache control headers : http://support.microsoft.com/kb/323308
+    ## For more explanations about this approach : http://stackoverflow.com/questions/3415370/ie-unable-to-download-from-unable-to-open-this-internet-site-the-request
+    #set ($discard = $response.setHeader('Cache-Control', 'private'))
+    #set ($discard = $response.setHeader('Pragma', 'cache'))
+    #set ($expires = $util.getDate().getTime())
+    #set ($expires = $expires + 120000)
+    #set ($expires = $util.getDate($expires))
+    #set ($discard = $response.setDateHeader('Expires', $expires.getTime()))
+    #if ($format == $EXCEL)
+      #set ($discard = $response.setContentType('application/ms-excel'))
+    #elseif ($format == $CSV)
+      #set ($discard = $response.setContentType('text/csv'))
+    #end
+  #end
+  ## Get the columns to export. If the all the class properties are asked for, then force add all the properties of the class in the export
+  #macro(setColumnList)
+    #if ("$!{request.withAllFields}" == 'true')
+      #set ($allColumns = [])
+      #foreach ($column in $columnList)
+        #set ($discard = $allColumns.add($column))
+      #end
+      ## DEBUG: $allColumns
+      ## get all the properties from the passed class to add them in the list
+      #foreach ($property in $xwiki.getDocument($className).getxWikiClass().properties)
+        #if (!$allColumns.contains($property.name))
+          #set ($discard = $allColumns.add($property.name))
+          ## DEBUG: adding additional column $property.name
+        #end
+      #end
+      ## DEBUG: exporting: $allColumns
+      #set ($columnList = $allColumns.toArray())
+    #end
+  #end
+  ## Prepare the first line of the sheet with column names
+  #macro(writeFileHeaders)
+    #set ($columnCount = 0)
+    #foreach ($columnName in $columnList)
+      ##DEBUG: generating column $columnName on position $columnCount
+      #setColumnView($velocityCount, 15)
+      #if ($columnName.startsWith('doc.'))
+        #set ($columnPrettyName = $services.localization.render("$!{request.transprefix}${columnName}"))
+        #setCell(0, $columnCount, $columnPrettyName)
+        #setColumnView($columnCount, 20)
+      #elseif ($columnName == '_action')
+      #else
+        #set ($columnPrettyName = $services.localization.render("$!{request.transprefix}${columnName}"))
+        #if ($columnPrettyName == "$!{request.transprefix}${columnName}")
+          ## col pretty name was not found from translations, try to use the property's pretty name (important for user directory export, for example)
+          #set ($propNameTranslationKey = "${className}_${columnName}")
+          #set ($columnPrettyName = $services.localization.render($propNameTranslationKey))
+        #end
+        #setCell(0, $columnCount, $columnPrettyName)
+        #setColumnView($columnCount, 20)
+      #end
+      #set ($columnCount = $columnCount + 1)
+    #end
+    #if ("$!{request.withPageName}" == 'true')
+      #setCell(0, $columnCount, "Reference")
+      #setColumnView($columnCount, 20)
+      #set ($columnCount = $columnCount + 1)
+    #end
+    #if ("$!{request.withPageURL}" == 'true')
+      #setCell(0, $columnCount, "URL")
+      #setColumnView($columnCount, 80)
+    #end
+    #writeRow()
+  #end
+  ## Marshall all data from the $map.rows to the Excel/CSV
+  #macro(writeRows)
+    #set ($rowCount = 1)
+    #foreach ($row in $map.rows)
+      #set ($rowValues = [])
+      #set ($columnCount = 0)
+      ## DEBUG: exporting $row
+      #foreach ($columnName in $columnList)
+        ## get the value of the column from the current row and put it in the excel
+        #if ($columnName.startsWith('doc.'))
+          #set ($columnValue = "$!row.get($columnName.replace('doc.', 'doc_'))")
+        #else
+          #set ($columnValue = "$!row.get($columnName)")
+          ## hack when the cell contains html, to use the cell_value instead
+          #if ($columnValue.indexOf('&lt;') &gt;= 0)
+            #set ($columnValueValue = $row.get("${columnName}_value"))
+            #if ("$!columnValueValue" != '')
+              #set ($columnValue = $columnValueValue)
+            #end
+          #end
+        #end
+        #setCell($rowCount, $columnCount, $columnValue)
+        #set ($columnCount = $columnCount + 1)
+      #end
+      #if ("$!{request.withPageName}" == 'true')
+        #setCell($rowCount, $columnCount, "$!row.get('doc_fullName')")
+        #set ($columnCount = $columnCount + 1)
+      #end
+      #if ("$!{request.withPageURL}" == 'true')
+        #setCell($rowCount, $columnCount, "$!row.get('doc_url')")
+        #set ($columnCount = $columnCount + 1)
+      #end
+      #set ($rowCount = $rowCount + 1)
+      #writeRow()
+    #end
+  #end
+  #if ($xcontext.action == 'get')
+    #if ($format == $CSV || $format == $EXCEL)
+      ## Initialize response headers at the beginning, because in the case of CSV we want to stream the output into the response.
+      #setResponseHeaders()
+      #initializeWriter()
+      #setColumnList()
+      #writeFileHeaders()
+      ## Build the JSON in memory (using basic Java data types) so that it can be adjusted before serialization, using the same functions as the livetable results
+      #set ($map = {})
+      #gridresultwithfilter_buildJSON($className $columnList $filterFrom $filterWhere $filterParams $map)
+      #addExtraColumns()
+      #writeRows()
+      #removeColumn(0)
+      #removeColumn(2)
+      ## Data generation ended, now output.
+      #if (!$request.debug)
+        #if ($format == $EXCEL)
+          #set ($bytes = $excelWriter.getWritableWorkbookAsBytes($workbook))
+          #set ($discard = $response.getOutputStream().write($bytes))
+          #set ($discard = $workbook.close())
+        #elseif ($format == $CSV)
+          #set ($discard = $csvWriter.close())
+        #end
+        #set ($discard = $xcontext.setFinished(true))
+      #else
+        Done
+      #end
+    #end
+  #end
+#end
+
+#macro(gridresult_buildJSON $className $collist $map)
+  #set($userDocName = $xwiki.getDocument($xcontext.user).name)
+  #set($query = ", BaseObject as obj, StringProperty as prop where doc.fullName = obj.name and obj.className = 'Catalog.Code.Student_Class' and obj.id=prop.id.id and prop.id.name='email' and REPLACE(SUBSTRING(TRIM(prop.value), 1, LOCATE('@', TRIM(prop.value))-1),'.','') = TRIM('$userDocName')")
+  #set($corespondingStudent = $services.query.hql($query).execute())
+  #if(!$hasEdit &amp;&amp; "$!{corespondingStudent[0]}" != '')
+    #set($filterwhere = "and doc.fullName = '$!{corespondingStudent[0]}'")
+  #end
+  #gridresultwithfilter_buildJSON($className $collist '' "$!{filterwhere}" [] $map)
+#end
+
+#macro(gridresult_buildColumnJSON $colname $row)
+  #if($colname.startsWith('doc.'))
+  #elseif($colname == '_action')
+    #set($discard = $row.put($colname, $services.localization.render("${request.transprefix}actiontext")))
+  #elseif($colname == '_attachments')
+    #livetable_getAttachmentsList($translatedDoc)
+    #set($discard = $row.put($colname, $attachlist))
+  #elseif($colname == '_avatar')
+    #livetable_getAvatar($itemDoc)
+    #set($discard = $row.put($colname, $avatar))
+  #elseif($colname == '_images')
+    #livetable_getImagesList($itemDoc)
+    #set($discard = $row.put($colname, $imagesList))
+  #else
+    #livetable_getPropertyClassAndType($colname)
+    #if(!$propClass.equals($class))
+      #set($discard = $itemDoc.use($propClassName))
+    #end
+    #set($associatedObj = $itemDoc.getObject("$request.classname",'courseName',$request.courseName))
+    #set($fieldValue = "$!itemDoc.getValue($colname, $associatedObj)")
+    #set($fieldDisplayValue = "$!itemDoc.display($colname, 'view', $associatedObj)")
+    #if($fieldDisplayValue == '')
+      #set($fieldDisplayValue = $services.localization.render("${request.transprefix}emptyvalue"))
+    #end
+    #set($fieldUrl = '')
+    ## Only retrieve an URL for a DBListClass item
+    #if(($propType == 'DBListClass' || $propType == 'PageClass') &amp;&amp; $propClass.get($colname).getProperty('multiSelect').value != 1)
+      #set($fieldUrl = $xwiki.getURL($fieldValue))
+      #if($fieldUrl == $xwiki.getURL($services.model.resolveDocument('', 'default', $doc.documentReference.extractReference('WIKI'))))
+        #set($fieldUrl = '')
+      #end
+    #end
+    #set($discard = $row.put($colname, $fieldDisplayValue.replaceFirst($regextool.quote('{{html clean="false" wiki="false"}}'), '').replaceAll("$regextool.quote('{{/html}}')$", '')))
+    #set($discard = $row.put("${colname}_value", $fieldValue))
+    #set($discard = $row.put("${colname}_url", $fieldUrl))
+    ## Reset to the default class
+    #set($discard = $itemDoc.use($className))
+  #end
+#end
+{{/velocity}}</content>
 </xwikidoc>

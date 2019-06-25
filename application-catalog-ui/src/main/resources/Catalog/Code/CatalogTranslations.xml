@@ -46,7 +46,7 @@ Catalog.Code.CatalogClass_finalStateFormula=Final state formula
 Catalog.Code.CatalogClass_groups=Groups
 
 # Live table generic keys
-catalog.livetable.doc.title=Page Title
+catalog.livetable.doc.title=Name
 catalog.livetable.doc.name=Page Name
 catalog.livetable.doc.space=Space
 catalog.livetable.doc.fullname=Page full name
@@ -71,6 +71,7 @@ catalog.livetable.labFormula=Laboratory score formula
 catalog.livetable.totalFormula=Final socre formula
 catalog.livetable.finalStateFormula=Final state formula
 catalog.livetable.grupe=Grupe
+catalog.livetable.courseName=Course
 
 # Other keys
 catalog.entry.name=Catalog

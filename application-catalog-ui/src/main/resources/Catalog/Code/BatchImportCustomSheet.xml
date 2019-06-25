@@ -56,7 +56,8 @@
     #displayLastException('import')
   #end
   #set($welcomePage = $xwiki.getDocument('Catalog.WebHome'))
-  [[$services.localization.render('batchimport.import.import.backtowebhome', [$welcomePage.space])&gt;&gt;${welcomePage}]]
+  #set($welcomePageEditURL = $welcomePage.getURL('edit'))
+  [[$services.localization.render('batchimport.import.import.backtowebhome', [$welcomePage.space])&gt;&gt;path:${welcomePageEditURL}]]
 #end
 
 ## include the css from this page

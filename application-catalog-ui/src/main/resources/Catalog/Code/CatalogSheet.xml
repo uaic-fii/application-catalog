@@ -37,95 +37,173 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
+#if(!$hasEdit)
+  #set($discard = $xwiki.ssx.use("Catalog.Code.CatalogHomeSheet"))
+#end
 #set($class = $doc.getObject('Catalog.Code.CatalogClass').xWikiClass)
 #foreach($prop in $class.properties)
-  #if($hasEdit)
+  #if($hasEdit &amp;&amp; $xcontext.action=="edit")
+    #if($prop.name=='labFormula')
+      You have access to the following variable to use in you velocity script formula:
+
+      {{code language=velocity}}
+      Input variables:
+      $pageTitle, $studentGroup, $attendances, $L1, $L2, $L3, $L4, $L5, $L6, $L7, $L8, $L9, $L10, $L11, $L12, $L13, $bonus, $premiere, $exam
+
+      The output must always be the variable:
+      $result
+      {{/code}}
+
+      You can also use the following macros (more will be added soon):
+
+      {{code language=velocity}}
+      #SUM($from, $to)
+
+      Parameters:
+      int $from -  number of the column marking the begining of the range of your sum, starting from 0 as the first column
+      int $to   -  number of the column marking the end of the range of your sum
+
+      Returns:
+      int $sum  -  a variable containing the sum of your declared range
+     {{/code}}
+
+      ; $doc.displayPrettyName($prop.name)
+      : $doc.display($prop.name)
+    #elseif($prop.name=='year' || $prop.name=='course')
+      ; $doc.displayPrettyName($prop.name)
+      : $doc.display($prop.name, 'view')
+    #else
+      ; $doc.displayPrettyName($prop.name)
+      : $doc.display($prop.name)
+    #end
+  #elseif($prop.name=='course' || $prop.name=='year' || $prop.name=='content1' || $prop.name=='message')
     ; $doc.displayPrettyName($prop.name)
+    #if($prop.name=='message')
+    $doc.display($prop.name)
+    #else
     : $doc.display($prop.name)
-  #elseif($prop.name=='course' || $prop.name=='year' || $prop.name=='content1')
-    ; $doc.displayPrettyName($prop.name)
-    : $doc.display($prop.name)
+    #end
   #end
 #end
+#if($xcontext.action == 'edit')
 
-#if($hasEdit)
-#set ($columnsProperties = {
-  'doc.title': {"type":"text"},
-  'registrationID': {"type":"hidden"},
-  'courseName': {"type": "hidden"},
-  'studentGroup': {"type": "text"},
-  'L1': {'type': 'number', 'link': 'editor'},
-  'L2': {'type': 'number', 'link': 'editor'},
-  'L3': {'type': 'number', 'link': 'editor'},
-  'L4': {'type': 'number', 'link': 'editor'},
-  'L5': {'type': 'number', 'link': 'editor'},
-  'L6': {'type': 'number', 'link': 'editor'},
-  'L7': {'type': 'number', 'link': 'editor'},
-  'L8': {'type': 'number', 'link': 'editor'},
-  'L9': {'type': 'number', 'link': 'editor'},
-  'L10': {'type': 'number', 'link': 'editor'},
-  'L11': {'type': 'number', 'link': 'editor'},
-  'L12': {'type': 'number', 'link': 'editor'},
-  'L13': {'type': 'number', 'link': 'editor'},
-  'attendances': {'type': 'number', 'link': 'editor'},
-  'bonus': {'type': 'number', 'link': 'editor'},
-  'premiere': {'type': 'number', 'link': 'editor'},
-  'exam': {'type': 'number', 'link': 'editor'},
-  'lab': {'type': 'number', "sortable":false,"filterable":false},
-  'total': {'type': 'number', "sortable":false,"filterable":false},
-  'situatie_finala': {"sortable":false,"filterable":false},
-  'reExam': {'type': 'number', 'link': 'editor'},
-  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
-})
+**Columns to display:**
+  #set($propClass = $doc.getObject('Catalog.Code.CatalogPropertiesClass').xWikiClass)
+  #foreach($prop in $propClass.properties)
+    #if("${prop.name}"=='doctitle')
+      #set($translatedPropName = $services.localization.render("catalog.livetable.doc.title"))
+    #else
+      #set($translatedPropName = $services.localization.render("catalog.livetable.${prop.name}"))
+    #end
+    |=$!translatedPropName##
+  #end
+
+  #foreach($prop in $propClass.properties)
+  |$!{doc.display($prop.name)}##
+  #end
 #else
-#set ($columnsProperties = {
-  'doc.title': {"type":"text"},
-  'registrationID': {"type":"hidden"},
-  'courseName': {"type": "hidden"},
-  'studentGroup': {"type": "text"},
-  'attendances': {'type': 'number'},
-   'L1': {'type': 'number'},
-  'L2': {'type': 'number'},
-  'L3': {'type': 'number'},
-  'L4': {'type': 'number'},
-  'L5': {'type': 'number'},
-  'L6': {'type': 'number'},
-  'L7': {'type': 'number'},
-  'L8': {'type': 'number'},
-  'L9': {'type': 'number'},
-  'L10': {'type': 'number'},
-  'L11': {'type': 'number'},
-  'L12': {'type': 'number'},
-  'L13': {'type': 'number'},
-  'bonus': {'type': 'number'},
-  'premiere': {'type': 'number'},
-  'exam': {'type': 'number'},
-  'lab': {'type': 'number', "sortable":false,"filterable":false},
-  'total': {'type': 'number', "sortable":false,"filterable":false},
-  'situatie_finala': {"sortable":false,"filterable":false},
-  'reExam': {'type': 'number'},
-  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
-})
+  #if($hasEdit)
+    #set ($columnsPropertiesOG = {
+      'doc.title': {"type":"text"},
+      'registrationID': {"type":"hidden"},
+      'courseName': {"type": "hidden"},
+      'studentGroup': {"type": "text"},
+      'attendances': {'type': 'number', 'link': 'editor'},
+      'L1': {'type': 'number', 'link': 'editor'},
+      'L2': {'type': 'number', 'link': 'editor'},
+      'L3': {'type': 'number', 'link': 'editor'},
+      'L4': {'type': 'number', 'link': 'editor'},
+      'L5': {'type': 'number', 'link': 'editor'},
+      'L6': {'type': 'number', 'link': 'editor'},
+      'L7': {'type': 'number', 'link': 'editor'},
+      'L8': {'type': 'number', 'link': 'editor'},
+      'L9': {'type': 'number', 'link': 'editor'},
+      'L10': {'type': 'number', 'link': 'editor'},
+      'L11': {'type': 'number', 'link': 'editor'},
+      'L12': {'type': 'number', 'link': 'editor'},
+      'L13': {'type': 'number', 'link': 'editor'},
+      'bonus': {'type': 'number', 'link': 'editor'},
+      'premiere': {'type': 'number', 'link': 'editor'},
+      'exam': {'type': 'number', 'link': 'editor'},
+      'lab': {'type': 'number', "sortable":false,"filterable":false},
+      'total': {'type': 'number', "sortable":false,"filterable":false},
+      'situatie_finala': {"sortable":false,"filterable":false},
+      'reExam': {'type': 'number', 'link': 'editor'},
+      '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+    })
+  #else
+    #set ($columnsPropertiesOG = {
+      'doc.title': {"type":"text","sortable":false,"filterable":false},
+      'registrationID': {"type":"hidden","sortable":false,"filterable":false},
+      'courseName': {"type": "hidden","sortable":false,"filterable":false},
+      'studentGroup': {"type": "text","sortable":false,"filterable":false},
+      'attendances': {'type': 'number',"sortable":false,"filterable":false},
+       'L1': {'type': 'number',"sortable":false,"filterable":false},
+      'L2': {'type': 'number',"sortable":false,"filterable":false},
+      'L3': {'type': 'number',"sortable":false,"filterable":false},
+      'L4': {'type': 'number',"sortable":false,"filterable":false},
+      'L5': {'type': 'number',"sortable":false,"filterable":false},
+      'L6': {'type': 'number',"sortable":false,"filterable":false},
+      'L7': {'type': 'number',"sortable":false,"filterable":false},
+      'L8': {'type': 'number',"sortable":false,"filterable":false},
+      'L9': {'type': 'number',"sortable":false,"filterable":false},
+      'L10': {'type': 'number',"sortable":false,"filterable":false},
+      'L11': {'type': 'number',"sortable":false,"filterable":false},
+      'L12': {'type': 'number',"sortable":false,"filterable":false},
+      'L13': {'type': 'number',"sortable":false,"filterable":false},
+      'bonus': {'type': 'number',"sortable":false,"filterable":false},
+      'premiere': {'type': 'number',"sortable":false,"filterable":false},
+      'exam': {'type': 'number',"sortable":false,"filterable":false},
+      'lab': {'type': 'number', "sortable":false,"filterable":false},
+      'total': {'type': 'number', "sortable":false,"filterable":false},
+      'situatie_finala': {"sortable":false,"filterable":false},
+      'reExam': {'type': 'number',"sortable":false,"filterable":false},
+      '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+    })
+  #end
+  #set($propObject = $doc.getObject('Catalog.Code.CatalogPropertiesClass'))
+  #if("$!{propObject.getProperty('doctitle').value}"!='')
+    #set ($columnsProperties = {})
+    #set($propClass = $propObject.xWikiClass)
+    #foreach($prop in $propClass.properties)
+      #if("$!{prop.name}" == 'doctitle')
+        #set($key = 'doc.title')
+      #else
+        #set($key = $prop.name)
+      #end
+      #if($!{propObject.getProperty($prop.name).value}==0)
+        #set($value = {"type":"hidden"})
+      #else
+        #if("$!{prop.name}"=='registrationID')
+          #set($value = {"type":"text"})
+        #else
+          #set($value = $columnsPropertiesOG.get($key))
+        #end
+      #end
+      #set($discard = $columnsProperties.put($key, $!value))
+    #end
+     #set($discard = $columnsProperties.put('courseName', {"type":"hidden"}))
+     #set($discard = $columnsProperties.put('_actions', {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}))
+  #end
+  #set ($options = {
+    "resultPage": "Catalog.Code.CustomLiveTableResults",
+    'className': 'Catalog.Code.Course_Class',
+    'translationPrefix': 'catalog.livetable.',
+    'extraParams' : "&amp;courseName=${doc.title}&amp;studentGroup_class=Catalog.Code.Student_Class&amp;registrationID_class=Catalog.Code.Student_Class&amp;courseDoc=${doc}",
+    'tagCloud': true,
+    'rowCount': 15,
+    'maxPages': 10,
+    'selectedColumn': 'doc.title',
+    'defaultOrder': 'asc'
+  })
+  #set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
+  #if(!$isGuest)
+    #livetable('catalog' $columns $columnsProperties $options)
+  #end
+  #if($hasEdit)
+  {{livetableExporter livetable="catalog" customResults="Catalog.Code.CustomLiveTableResults" withPageName='false' withPageURL='false' filename="${doc.name}"/}}
+  #end
+{{include reference="Catalog.Code.CustomLiveTablePropertyEditor" /}}
 #end
-#set ($options = {
-  "resultPage": "Catalog.Code.CustomLiveTableResults",
-  'className': 'Catalog.Code.Course_Class',
-  'translationPrefix': 'catalog.livetable.',
-  'extraParams' : "&amp;courseName=${doc.title}&amp;studentGroup_class=Catalog.Code.Student_Class&amp;registrationID_class=Catalog.Code.Student_Class&amp;courseDoc=${doc}",
-  'tagCloud': true,
-  'rowCount': 15,
-  'maxPages': 10,
-  'selectedColumn': 'doc.title',
-  'defaultOrder': 'asc'
-})
-#set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
-#livetable('catalog' $columns $columnsProperties $options)
-
-#if($hasEdit)
-{{livetableExporter livetable="catalog" customResults="Catalog.Code.CustomLiveTableResults" withPageName='false' withPageURL='false' filename="${doc.name}"/}}
-#end
-
-{{/velocity}}
-
-{{include reference="Catalog.Code.CustomLiveTablePropertyEditor" /}}</content>
+{{/velocity}}</content>
 </xwikidoc>

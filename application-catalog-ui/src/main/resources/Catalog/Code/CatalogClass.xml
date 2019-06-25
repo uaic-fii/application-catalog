@@ -46,19 +46,6 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <content1>
-      <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
-      <disabled>0</disabled>
-      <hint>Message</hint>
-      <name>content1</name>
-      <number>3</number>
-      <prettyName>Message</prettyName>
-      <script/>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
-    </content1>
     <course>
       <customDisplay/>
       <disabled>0</disabled>
@@ -107,6 +94,23 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
     </labFormula>
+    <message>
+      <contenttype/>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <editor/>
+      <hint/>
+      <name>message</name>
+      <number>3</number>
+      <picker>0</picker>
+      <prettyName>Message</prettyName>
+      <rows>5</rows>
+      <size>40</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+    </message>
     <totalFormula>
       <contenttype/>
       <customDisplay/>
