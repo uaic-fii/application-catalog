@@ -75,8 +75,8 @@
         <number>6</number>
         <picker>0</picker>
         <prettyName>Final state formula</prettyName>
-        <rows>5</rows>
-        <size>40</size>
+        <rows>25</rows>
+        <size>70</size>
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
         <validationRegExp/>
@@ -134,34 +134,70 @@
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </totalFormula>
       <year>
+        <cache>0</cache>
+        <classname/>
         <customDisplay/>
+        <defaultValue/>
         <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText/>
         <hint/>
+        <idField/>
+        <multiSelect>0</multiSelect>
         <name>year</name>
         <number>2</number>
-        <picker>0</picker>
-        <prettyName>Year</prettyName>
-        <size>30</size>
+        <picker>1</picker>
+        <prettyName>year</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators/>
+        <size>1</size>
+        <sort/>
+        <sql>select space.name from XWikiSpace as space where space.parent = 'Catalog' and space.name &lt;&gt; 'Code' and space.name &lt;&gt; 'Students'</sql>
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
         <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+        <valueField/>
+        <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
       </year>
     </class>
     <property>
       <course/>
     </property>
     <property>
-      <finalStateFormula/>
+      <finalStateFormula>#if($labScore==0)
+  #set($result = "Absent")
+#else
+  #SUM(2,8)
+  #if($sum&lt;50)
+    #set($result = "Laborator nepromovat")
+  #else
+    #SUM(9,17)
+    #if($sum&lt;60)
+      #set($result = "Proiect nepromovat")
+    #else
+      #if($exam==0)
+        #set($result = "Absent examen")
+      #else
+        #if($exam&lt;90)
+          #set($result = "Picat examen")
+        #else
+          #set($result = "Promovat materie")
+        #end
+      #end
+    #end
+  #end
+#end</finalStateFormula>
     </property>
     <property>
-      <labFormula/>
+      <labFormula>#SUM(2,17)
+#set($result = $sum)</labFormula>
     </property>
     <property>
       <message/>
     </property>
     <property>
-      <totalFormula/>
+      <totalFormula>#set($result = $exam + $labScore)</totalFormula>
     </property>
     <property>
       <year/>

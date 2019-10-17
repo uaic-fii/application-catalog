@@ -49,34 +49,65 @@
 ##
 #macro(displayGenerateCourses)
   {{html clean=false}}
-    &lt;form action="$!{doc.getURL('edit')}"&gt;
-      #set($nextYear = $!{datetool.year} + 1)
-      Generati structura pentru anul: &lt;input type="text" name="an" value="$!{datetool.year}-$!{nextYear}"&gt;
-      &lt;input type="hidden" id="doGenerate" name="generate" value="curricula"&gt;
-      &lt;input type="submit" value="Generază"&gt;
-    &lt;/form&gt;
+  &lt;div class="row" style='padding:10px 0;'&gt;
+    &lt;div class="col-sm-6"&gt;
+      &lt;form action="$!{doc.getURL('edit')}"&gt;
+        #set($nextYear = $!{datetool.year} + 1)
+        &lt;strong&gt;Generati structura pentru anul universitar:&lt;/strong&gt;&lt;/br&gt;
+        &lt;input type="text" class='yearField col-sm-3' name="an" value="$!{datetool.year}-$!{nextYear}"&gt;&lt;/br&gt;&lt;/br&gt;
+        &lt;input type="hidden" id="doGenerate" name="generate" value="curricula"&gt;
+        &lt;input type="submit" class='btn btn-primary col-sm-3' value="Generază"&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
   {{/html}}
 #end
 
 #macro(displayImportStudents)
   #set($location = ${xwiki.getDocument('Catalog.Code.CatalogActions').getURL()})
   {{html clean=false}}
-    &lt;form action="$location"&gt;
-      Importati studenții din fisier csv:
-      &lt;input type="hidden" name="action" value="importStudents" /&gt;
-      &lt;input type="submit" value="Importă" /&gt;
-    &lt;/form&gt;
+    &lt;div class="row" style='padding:10px 0;'&gt;
+      &lt;div class="col-sm-6"&gt;
+        &lt;form action="$location"&gt;
+          &lt;strong&gt;Importati studenții din fisier csv:&lt;/strong&gt;&lt;/br&gt;
+          &lt;input type="hidden" name="action" value="importStudents" /&gt;
+          &lt;input type="submit" class='btn btn-primary col-sm-3' value="Importă" /&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
   {{/html}}
 #end
 
 #macro(displayInitializeStudents)
-  {{html clean=false}}
-    &lt;form action="$!{doc.getURL('edit')}"&gt;
-      #set($nextYear = $!{datetool.year} + 1)
-      Atribuiti materii documentelor de tip student:
-      &lt;input type="hidden" id="initializeStudents" name="initialize" value="students"&gt;
-      &lt;input type="submit" value="Inițializează"&gt;
-    &lt;/form&gt;
+  {{html wiki=true clean=false}}
+    &lt;div class="row lastrow" style='padding:10px 0 0 0;'&gt;
+      &lt;div class="col-sm-6"&gt;
+        &lt;form action="$!{doc.getURL('edit')}"&gt;
+          #set($nextYear = $!{datetool.year} + 1)
+          &lt;strong&gt;Atribuiti obiecte curs documentelor de tip student:&lt;/strong&gt;&lt;/br&gt;
+          &lt;input type="hidden" id="initializeStudents" name="initialize" value="students"&gt;
+          #set($initObj = $doc.getObject('Catalog.Code.InitializationClass'))
+          #set($lasvalueOfBatch = $services.query.hql("select distinct prop.value from BaseObject as obj, StringProperty as prop where obj.className='Catalog.Code.Student_Class' and obj.id=prop.id.id and prop.id.name='batch'").execute())
+          #set($lasvalueOfCYear = $services.query.hql("select space.name from XWikiSpace as space where space.parent = 'Catalog' and space.name &lt;&gt; 'Code' and space.name &lt;&gt; 'Students'").execute())
+          #set($indexBatch = $lasvalueOfBatch.size() - 1)
+          #set($indexOfCYear = $lasvalueOfCYear.size() - 1)
+          #if($lasvalueOfBatch.size() &gt; 0 &amp;&amp; $lasvalueOfCYear.size() &gt; 0)
+            #if("$!{initObj.getProperty('studentBatch').value}" != "$!{lasvalueOfBatch[$indexBatch]}" || "$!{initObj.getProperty('courseYear').value}" != "$!{lasvalueOfCYear[$indexOfCYear]}")
+              #set($discard = $doc.set('studentBatch', $!lasvalueOfBatch[$indexBatch]))
+              #set($discard = $doc.set('courseYear', $!lasvalueOfCYear[$indexOfCYear]))
+              #set($discard = $doc.save())
+            #end
+          #elseif("$!{initObj.getProperty('studentBatch').value}" != "" &amp;&amp; "$!{initObj.getProperty('courseYear').value}" == "")
+            #set($discard = $doc.set('studentBatch', ''))
+            #set($discard = $doc.set('courseYear', ''))
+           #set($discard = $doc.save())
+          #end
+          &lt;div class='row' style='padding:5px 0;'&gt;&lt;div class="col-sm-6"&gt;Structura anului universitar&lt;/div&gt;&lt;div class="col-sm-6"&gt;$doc.display('courseYear')&lt;/div&gt;&lt;/div&gt;
+          &lt;div class='row' style='padding:5px 0;'&gt;&lt;div class="col-sm-6"&gt;Studenții din seria&lt;/div&gt;&lt;div class="col-sm-6"&gt;$doc.display('studentBatch')&lt;/div&gt;&lt;/div&gt;
+          &lt;input type="submit" class='btn btn-primary col-sm-3' value="Inițializează"&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
   {{/html}}
 #end
 ####
@@ -156,12 +187,12 @@
         #set($courseObj = $documentToAlter.newObject('Catalog.Code.Course_Class'))
         #if($courseObj.courseName != $courseDoc.title)
           #set($discard = $courseObj.set('courseName', $courseDoc.title))
+          #set($discard = $courseObj.set('courseYear', $!request.get('Catalog.Code.InitializationClass_0_courseYear')))
         #end
       #end
     #end
     #set($discard = $documentToAlter.save())
   #end
-  [[$documentToAlter]]
 #end
 
 ####
@@ -169,10 +200,11 @@
 ##
 #macro(initializeStudents)
   #if("$request.initialize" == 'students')
-    Initilized documents:
-    #set($query = "from doc.object(Catalog.Code.Student_Class) as student")
+    #set($studentBatch = $request.get('Catalog.Code.InitializationClass_0_studentBatch'))
+    #set($query = "from doc.object(Catalog.Code.Student_Class) as student where student.batch = '${studentBatch}'")
     #set($students = $services.query.xwql($query).execute())
-    #set($query = "from doc.object(Catalog.Code.CatalogClass) as course")
+    #set($space = $request.get('Catalog.Code.InitializationClass_0_courseYear').trim())
+    #set($query = "from doc.object(Catalog.Code.CatalogClass) as course where doc.space like 'Catalog.${space}' or doc.space like 'Catalog.${space}.%'")
     #set($courses = $services.query.xwql($query).execute())
     #foreach($student in $students)
       #set($studentDocument = $xwiki.getDocument($student))
@@ -186,6 +218,7 @@
     #set($discard = $globalRightsObj.set('groups', 'XWiki.XWikiAllGroup'))
     #set($discard = $globalRightsObj.set('allow', 0))
     #set($discard = $studentsSpace.save())
+    &lt;br/&gt;Documente Initializate: $students.size()&lt;br/&gt;
   #end
 #end
 {{/velocity}}</content>

@@ -72,6 +72,7 @@ catalog.livetable.totalFormula=Final socre formula
 catalog.livetable.finalStateFormula=Final state formula
 catalog.livetable.grupe=Grupe
 catalog.livetable.courseName=Course
+catalog.livetable.year=Academic year
 
 # Other keys
 catalog.entry.name=Catalog

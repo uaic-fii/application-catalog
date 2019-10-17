@@ -70,8 +70,8 @@
       <number>6</number>
       <picker>0</picker>
       <prettyName>Final state formula</prettyName>
-      <rows>5</rows>
-      <size>40</size>
+      <rows>25</rows>
+      <size>70</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
@@ -129,18 +129,31 @@
       <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
     </totalFormula>
     <year>
+      <cache>0</cache>
+      <classname/>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
       <hint/>
+      <idField/>
+      <multiSelect>0</multiSelect>
       <name>year</name>
       <number>2</number>
-      <picker>0</picker>
-      <prettyName>Year</prettyName>
-      <size>30</size>
+      <picker>1</picker>
+      <prettyName>year</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>1</size>
+      <sort/>
+      <sql>select space.name from XWikiSpace as space where space.parent = 'Catalog' and space.name &lt;&gt; 'Code' and space.name &lt;&gt; 'Students'</sql>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
     </year>
   </class>
   <object>

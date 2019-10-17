@@ -1,0 +1,95 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Catalog.Code.StatisticsData" locale="">
+  <web>Catalog.Code</web>
+  <name>StatisticsData</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Catalog.Code.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>StatisticsData</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+##set($catalog = $xwiki.getDocument($request.catalog))
+#set($catalog = $doc)
+#if($catalog.isNew())
+  Data not found
+#else
+  #set($space = $catalog.year)
+  #set($query = "from doc.object(Catalog.Code.Course_Class) as course where course.courseName like '%$catalog.name%' and course.courseYear like '$catalog.year'")
+  #set($students = $services.query.xwql($query).execute())
+  #set($grupe = [])
+  #set($statsDataLab = {})
+  #set($statsDataExam = {})
+  #set($allMarks = {})
+  #foreach($student in $students)
+    #set($studentDoc = $xwiki.getDocument($student))
+    #set($studObj = $studentDoc.getObject('Catalog.Code.Student_Class'))
+    #set($cObj = $studentDoc.getObject('Catalog.Code.Course_Class', 'courseName', $catalog.name))
+    #set($grupa = $studObj.getProperty('studentGroup').value)
+    #if(!$grupe.contains($grupa))
+      #set($discard = $grupe.add($grupa))
+      #set($discard = $statsDataLab.put($grupa, [10000,0,0]))
+      #set($discard = $allMarks.put($grupa, []))
+      #set($discard = $statsDataExam.put($grupa, [10000,0,0]))
+    #end
+    #foreach($i in [1..13])
+      #set($crtMark = $!{cObj.getProperty("L$!{i}").value})
+      #if("$!{crtMark}" != '')
+        #set($discard = $allMarks[$grupa].add($crtMark))
+        ##set($statsDataLab[$grupa][3] = $statsDataLab[$grupa][3] + 1)
+        #if($crtMark &gt; $statsDataLab[$grupa][2])
+          #set($statsDataLab[$grupa][2] = $crtMark)
+        #end
+        #if($crtMark &lt; $statsDataLab[$grupa][0])
+          #set($statsDataLab[$grupa][0] = $crtMark)
+        #end
+      #end
+    #end
+  #end
+#set($endOfRange = $grupe.size() + 1)
+#set($end = "D$!{endOfRange}")
+#foreach($gr in $grupe)
+  #if($allMarks[$gr].size() &gt; 0)
+    #set($statsDataLab[$gr][1] = $mathtool.getAverage($allMarks[$gr]))
+  #end
+#end
+
+
+{{chart type="bar" source="inline" params="range:B2-${end};series:columns;" title="Lab Statistics" width="680" height="420"}}
+|=|=MIN|=AVG|=MAX
+#foreach($gr in $grupe)
+  |$gr|#if($statsDataLab[$gr][0] == 10000)0#else ${statsDataLab[$gr][0]}#end|$statsDataLab[$gr][1]|$statsDataLab[$gr][2]
+#end
+{{/chart}}
+
+#end
+{{/velocity}}</content>
+</xwikidoc>

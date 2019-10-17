@@ -38,6 +38,13 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 #if(!$hasEdit)
+  {{html clean=false}}
+  &lt;style&gt;
+  .document-menu{
+    display: none;
+  }
+  &lt;/style&gt;
+  {{/html}}
   #set($discard = $xwiki.ssx.use("Catalog.Code.CatalogHomeSheet"))
 #end
 #set($class = $doc.getObject('Catalog.Code.CatalogClass').xWikiClass)
@@ -129,6 +136,7 @@
       'total': {'type': 'number', "sortable":false,"filterable":false},
       'situatie_finala': {"sortable":false,"filterable":false},
       'reExam': {'type': 'number', 'link': 'editor'},
+      'courseYear': {"type": "hidden"},
       '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
     })
   #else
@@ -158,6 +166,7 @@
       'total': {'type': 'number', "sortable":false,"filterable":false},
       'situatie_finala': {"sortable":false,"filterable":false},
       'reExam': {'type': 'number',"sortable":false,"filterable":false},
+      'courseYear': {"type": "hidden"},
       '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
     })
   #end
@@ -183,20 +192,21 @@
       #set($discard = $columnsProperties.put($key, $!value))
     #end
      #set($discard = $columnsProperties.put('courseName', {"type":"hidden"}))
+     #set($discard = $columnsProperties.put('courseYear', {"type":"hidden"}))
      #set($discard = $columnsProperties.put('_actions', {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}))
   #end
   #set ($options = {
     "resultPage": "Catalog.Code.CustomLiveTableResults",
     'className': 'Catalog.Code.Course_Class',
     'translationPrefix': 'catalog.livetable.',
-    'extraParams' : "&amp;courseName=${doc.title}&amp;studentGroup_class=Catalog.Code.Student_Class&amp;registrationID_class=Catalog.Code.Student_Class&amp;courseDoc=${doc}",
+    'extraParams' : "&amp;courseName=${doc.title}&amp;studentGroup_class=Catalog.Code.Student_Class&amp;registrationID_class=Catalog.Code.Student_Class&amp;courseDoc=${doc}&amp;courseYear=$doc.year",
     'tagCloud': true,
     'rowCount': 15,
     'maxPages': 10,
     'selectedColumn': 'doc.title',
     'defaultOrder': 'asc'
   })
-  #set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam'])
+  #set ($columns = ['doc.title','registrationID', 'studentGroup', 'courseName','attendances','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','L13', 'bonus', 'premiere','exam', 'lab', 'total', 'situatie_finala','reExam','courseYear'])
   #if(!$isGuest)
     #livetable('catalog' $columns $columnsProperties $options)
   #end
@@ -204,6 +214,10 @@
   {{livetableExporter livetable="catalog" customResults="Catalog.Code.CustomLiveTableResults" withPageName='false' withPageURL='false' filename="${doc.name}"/}}
   #end
 {{include reference="Catalog.Code.CustomLiveTablePropertyEditor" /}}
+#end
+
+#if(!$isGuest &amp;&amp; $xcontext.action!="edit" &amp;&amp; $hasEdit)
+{{include reference="Catalog.Code.StatisticsData" /}}
 #end
 {{/velocity}}</content>
 </xwikidoc>

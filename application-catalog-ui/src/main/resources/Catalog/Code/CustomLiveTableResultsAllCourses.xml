@@ -171,7 +171,7 @@
   #set($allMatchingParams = [])
   #if("$!className" != '')
     ## Class query
-    #set($sql = "SELECT doc.fullName, prop.value FROM XWikiDocument AS doc, BaseObject as obj, StringProperty as prop $!fromSql $!filterfrom where obj.name=doc.fullName and obj.id=prop.id.id and obj.className = ? and doc.fullName not in (?, ?) $!whereSql $!filterwhere")
+    #set($sql = "SELECT doc.fullName, prop_courseName.value FROM XWikiDocument AS doc, BaseObject as obj $!fromSql $!filterfrom where obj.name=doc.fullName and obj.className = ? and doc.fullName not in (?, ?) $!whereSql $!filterwhere")
     #set($discard = $sqlParams.addAll(["${className}", "${className}Template", ${className.replaceAll('Class$', 'Template')}]))
     #set($discard = $sqlParams.addAll($whereParams))
     ##

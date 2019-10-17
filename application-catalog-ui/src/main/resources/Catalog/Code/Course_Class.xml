@@ -51,7 +51,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L1</name>
-      <number>8</number>
+      <number>7</number>
       <numberType>long</numberType>
       <prettyName>L1</prettyName>
       <size>30</size>
@@ -65,7 +65,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L10</name>
-      <number>17</number>
+      <number>16</number>
       <numberType>long</numberType>
       <prettyName>L10</prettyName>
       <size>30</size>
@@ -79,7 +79,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L11</name>
-      <number>18</number>
+      <number>17</number>
       <numberType>long</numberType>
       <prettyName>L11</prettyName>
       <size>30</size>
@@ -93,7 +93,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L12</name>
-      <number>19</number>
+      <number>18</number>
       <numberType>long</numberType>
       <prettyName>L12</prettyName>
       <size>30</size>
@@ -107,7 +107,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L13</name>
-      <number>20</number>
+      <number>19</number>
       <numberType>long</numberType>
       <prettyName>L13</prettyName>
       <size>30</size>
@@ -121,7 +121,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L2</name>
-      <number>9</number>
+      <number>8</number>
       <numberType>long</numberType>
       <prettyName>L2</prettyName>
       <size>30</size>
@@ -135,7 +135,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L3</name>
-      <number>10</number>
+      <number>9</number>
       <numberType>long</numberType>
       <prettyName>L3</prettyName>
       <size>30</size>
@@ -149,7 +149,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L4</name>
-      <number>11</number>
+      <number>10</number>
       <numberType>long</numberType>
       <prettyName>L4</prettyName>
       <size>30</size>
@@ -163,7 +163,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L5</name>
-      <number>12</number>
+      <number>11</number>
       <numberType>long</numberType>
       <prettyName>L5</prettyName>
       <size>30</size>
@@ -177,7 +177,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L6</name>
-      <number>13</number>
+      <number>12</number>
       <numberType>long</numberType>
       <prettyName>L6</prettyName>
       <size>30</size>
@@ -191,7 +191,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L7</name>
-      <number>14</number>
+      <number>13</number>
       <numberType>long</numberType>
       <prettyName>L7</prettyName>
       <size>30</size>
@@ -205,7 +205,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L8</name>
-      <number>15</number>
+      <number>14</number>
       <numberType>long</numberType>
       <prettyName>L8</prettyName>
       <size>30</size>
@@ -219,7 +219,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>L9</name>
-      <number>16</number>
+      <number>15</number>
       <numberType>long</numberType>
       <prettyName>L9</prettyName>
       <size>30</size>
@@ -247,7 +247,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>bonus</name>
-      <number>4</number>
+      <number>3</number>
       <numberType>long</numberType>
       <prettyName>Bonus</prettyName>
       <size>30</size>
@@ -270,12 +270,26 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </courseName>
+    <courseYear>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>courseYear</name>
+      <number>20</number>
+      <picker>1</picker>
+      <prettyName>courseYear</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </courseYear>
     <exam>
       <customDisplay/>
       <disabled>0</disabled>
       <hint/>
       <name>exam</name>
-      <number>6</number>
+      <number>5</number>
       <numberType>long</numberType>
       <prettyName>Exam</prettyName>
       <size>30</size>
@@ -289,7 +303,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>premiere</name>
-      <number>5</number>
+      <number>4</number>
       <numberType>long</numberType>
       <prettyName>Premiere</prettyName>
       <size>30</size>
@@ -303,7 +317,7 @@
       <disabled>0</disabled>
       <hint/>
       <name>reExam</name>
-      <number>7</number>
+      <number>6</number>
       <numberType>long</numberType>
       <prettyName>Reexamination</prettyName>
       <size>30</size>

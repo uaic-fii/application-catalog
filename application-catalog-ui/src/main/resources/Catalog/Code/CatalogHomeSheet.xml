@@ -40,22 +40,40 @@
 
 {{velocity}}
 #if(!$hasEdit)
-  #set($discard = $xwiki.ssx.use("Catalog.Code.CatalogHomeSheet"))
+  {{html clean=false}}
+  &lt;style&gt;
+  .document-menu{
+    display: none;
+  }
+  &lt;/style&gt;
+  {{/html}}
 #end
+#set($discard = $xwiki.ssx.use("Catalog.Code.CatalogHomeSheet"))
 #if($xcontext.action == 'edit')
   #editFormByPass()
+
+  {{html wiki=true clean=false}}
+  &lt;div class="container-fluid"&gt;
   #displayGenerateCourses()
   #displayImportStudents()
   #generateDocuments_Materii($request.an, ["Catalog", "$request.an"], 'Bachelor')
   #displayInitializeStudents()
   #initializeStudents()
+  #if($referenceList_Materii)
+  &lt;hr/&gt;
+  Au fost create urmatoarele document:
+  &lt;br/&gt;
   #foreach($ref in $referenceList_Materii)
-    [[$ref]]
+    [[$ref]]&lt;br/&gt;
   #end
+  #end
+  &lt;/div&gt;
+  {{/html}}
+
 #else
   #set ($columnsProperties = {
     'doc.title': {"link":"view"},
-    'doc.location': {"html":true},
+    'year': {"html":true, "type":'list'},
     'doc.date': {},
     'doc.author': {"link":"author"},
     '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
@@ -66,13 +84,13 @@
     'tagCloud': true,
     'rowCount': 15,
     'maxPages': 10,
-    'selectedColumn': 'doc.title',
-    'defaultOrder': 'asc'
+    'selectedColumn': 'year',
+    'defaultOrder': 'desc'
   })
   #if(!($hasEdit || $isGuest))
-    #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author'])
+    #set ($columns = ['doc.title', 'year', 'doc.date', 'doc.author'])
   #else
-    #set ($columns = ['doc.title', 'doc.location', 'doc.date', 'doc.author', '_actions'])
+    #set ($columns = ['doc.title', 'year', 'doc.date', 'doc.author', '_actions'])
   #end
   #livetable('catalog' $columns $columnsProperties $options)
 #end
@@ -221,8 +239,15 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>.document-menu{
+      <code>.bottombuttons{
   display: none;
+}
+.container-fluid {
+  border-bottom: 1px solid lightgray;
+  padding-bottom: 10px;
+}
+.yearField {
+  margin-bottom: 5px;
 }</code>
     </property>
     <property>

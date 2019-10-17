@@ -40,6 +40,82 @@
   <object>
     <name>Catalog.WebHome</name>
     <number>0</number>
+    <className>Catalog.Code.InitializationClass</className>
+    <guid>d226aaa9-d8b2-4f1d-a6f6-ca62220c6211</guid>
+    <class>
+      <name>Catalog.Code.InitializationClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <courseYear>
+        <cache>0</cache>
+        <classname/>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText/>
+        <hint/>
+        <idField/>
+        <multiSelect>0</multiSelect>
+        <name>courseYear</name>
+        <number>2</number>
+        <picker>1</picker>
+        <prettyName>courseYear</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators/>
+        <size>1</size>
+        <sort>value</sort>
+        <sql>select space.name from XWikiSpace as space where space.parent = 'Catalog' and space.name &lt;&gt; 'Code' and space.name &lt;&gt; 'Students'</sql>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <valueField/>
+        <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+      </courseYear>
+      <studentBatch>
+        <cache>0</cache>
+        <classname/>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText/>
+        <hint/>
+        <idField/>
+        <multiSelect>0</multiSelect>
+        <name>studentBatch</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>studentBatch</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators/>
+        <size>1</size>
+        <sort>value</sort>
+        <sql>select distinct prop.value from BaseObject as obj, StringProperty as prop where obj.className='Catalog.Code.Student_Class' and obj.id=prop.id.id and prop.id.name='batch'</sql>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <valueField/>
+        <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+      </studentBatch>
+    </class>
+    <property>
+      <courseYear>2019-2020</courseYear>
+    </property>
+    <property>
+      <studentBatch> 2019-2022</studentBatch>
+    </property>
+  </object>
+  <object>
+    <name>Catalog.WebHome</name>
+    <number>0</number>
     <className>XWiki.DocumentSheetBinding</className>
     <guid>8af4a2a2-3c63-410f-99ba-f6c0b1b29831</guid>
     <class>
